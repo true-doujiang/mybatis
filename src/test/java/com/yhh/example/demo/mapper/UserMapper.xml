@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yhh.example.demo.mapper.UserMapper">
+
+    <!-- 用户信息综合查询
+         #{userCustom.sex}:取出包装对象中性别值
+         使用resultType进行输出映射，只有查询出来的列名和pojo中的属性名一致，该列才可以映射成功。
+    -->
+    <select id="findUserList" parameterType="User"  resultType="User">
+		SELECT * FROM USER where user.sex=#{user.sex} and user.username like '%${user.username}%'
+	</select>
+
+
+    <!--用户信息综合查询总数
+        parameterType：指定输入类型和findUserList一样
+        resultType：输出结果类型 。    查询出来的结果集只有一行且一列，可以使用简单类型进行输出映射。
+     -->
+    <select id="findUserCount" parameterType="User" resultType="int">
+	   SELECT count(*) FROM USER where sex=#{user.sex} and username like '%${user.username}%'
+	</select>
+
+
+
+    <select id="findUserById" parameterType="int" resultType="user">
+		SELECT * FROM USER WHERE id=#{value}
+	</select>
+
+    <select id="findUserByName" parameterType="String" resultType="user">
+		SELECT * FROM USER WHERE username LIKE '%${value}%'
+	</select>
+
+    <!-- 返回新记录的主键: keyProperty="id" useGeneratedKeys="true" -->
+    <insert id="insertUser" parameterType="user" >
+        <selectKey keyProperty="id" order="AFTER" resultType="int">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into user(username,birthday,sex,address) value(#{username},#{birthday},#{sex},#{address})
+    </insert>
+
+
+    <delete id="deleteUser" parameterType="int">
+		delete from user where id=#{id}
+	</delete>
+
+
+</mapper>

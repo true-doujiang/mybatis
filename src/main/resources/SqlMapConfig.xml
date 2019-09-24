@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <!-- 加载属性文件 -->
+    <properties resource="db.properties">
+        <!--properties中还可以配置一些属性名和属性值(建议：不要在这里配)  -->
+        <!-- <property name="jdbc.driver" value=""/> -->
+    </properties>
+
+    <!--
+        settings全局参数配置  用到的时候再配置，慎重使用
+        mybatis框架在运行时可以调整一些运行参数。 比如：开启二级缓存、开启延迟加载。。
+        <settings>
+        </settings>
+    -->
+
+    <!-- 别名定义 -->
+    <typeAliases>
+        <!--1.针对单个 别名定义
+        <typeAlias type="com.yhh.mybatis.entity" alias="user"/>-->
+
+        <!-- 2.批量 别名定义
+              指定包名，mybatis自动扫描包中的po类，自动定义别名，别名就是类名（首字母大写或小写都可以）-->
+        <package name="com.yhh.example.demo.entity"/>
+    </typeAliases>
+
+    <!--
+        mybatis中通过typeHandlers完成jdbc类型和java类型的转换。
+         通常情况下，mybatis提供的类型处理器满足日常需要，不需要自定义.
+        <typeHandlers>
+        </typeHandlers>
+     -->
+
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC" />
+            <dataSource type="POOLED">
+                <property name="driver" value="${jdbc.driver}" />
+                <property name="url" value="${jdbc.url}" />
+                <property name="username" value="${jdbc.username}" />
+                <property name="password" value="${jdbc.password}" />
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!-- 加载 映射文件 3种方式-->
+    <mappers>
+        <!-- 1、通过resource方法一次加载一个映射文件 -->
+        <!--<mapper resource="com/yhh/mybatis/mapper/UserMapper.xml"/>-->
+
+        <!-- 2、通过mapper接口  加载单个映射文件
+              遵循一些规范：
+              ①需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录
+              ②使用的是mapper代理方法（这个肯定是啊） -->
+        <!--<mapper class="com.yhh.mybatis.mapper.UserMapper"/>-->
+
+        <!-- 3、指定mapper接口的包名  批量加载mapper  遵循一些规范：同第二种。 -->
+        <package name="com.yhh.example.demo.mapper" />
+    </mappers>
+
+</configuration>
