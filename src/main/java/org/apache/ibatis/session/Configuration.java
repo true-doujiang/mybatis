@@ -103,18 +103,26 @@ public class Configuration {
   protected boolean useColumnLabel = true;
   protected boolean cacheEnabled = true;
   protected boolean callSettersOnNulls = false;
+
   protected String logPrefix;
   protected Class <? extends Log> logImpl;
+
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
+
   protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
+
   protected Set<String> lazyLoadTriggerMethods = new HashSet<String>(Arrays.asList(new String[] { "equals", "clone", "hashCode", "toString" }));
   protected Integer defaultStatementTimeout;
+
   protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
+
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
 
   protected Properties variables = new Properties();
+  //
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
+  //
   protected MapperRegistry mapperRegistry = new MapperRegistry(this);
 
   protected boolean lazyLoadingEnabled = false;

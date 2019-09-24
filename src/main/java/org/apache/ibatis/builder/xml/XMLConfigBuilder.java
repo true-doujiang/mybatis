@@ -44,11 +44,15 @@ import org.apache.ibatis.type.JdbcType;
 
 /**
  * @author Clinton Begin
+ *
+ *
  */
 public class XMLConfigBuilder extends BaseBuilder {
 
   private boolean parsed;
+  //
   private XPathParser parser;
+  //
   private String environment;
 
   public XMLConfigBuilder(Reader reader) {
