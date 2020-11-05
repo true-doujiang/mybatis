@@ -26,7 +26,7 @@ public class UserMapperTest {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
 
-        List<User> list = userMapper.findUserByName("小明");
+        List<User> list = userMapper.findUserByName("小明1");
         sqlSession.close();
         System.out.println(list);
     }
