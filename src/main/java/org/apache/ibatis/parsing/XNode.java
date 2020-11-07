@@ -31,13 +31,24 @@ import org.w3c.dom.NodeList;
  */
 public class XNode {
 
+  // w3c
   private Node node;
+
   private String name;
   private String body;
+
   private Properties attributes;
+
   private Properties variables;
+  //
   private XPathParser xpathParser;
 
+  /**
+   *
+   * @param xpathParser
+   * @param node
+   * @param variables
+   */
   public XNode(XPathParser xpathParser, Node node, Properties variables) {
     this.xpathParser = xpathParser;
     this.node = node;
@@ -287,9 +298,14 @@ public class XNode {
     }
   }
 
+  /**
+   *
+   * @return
+   */
   public List<XNode> getChildren() {
     List<XNode> children = new ArrayList<XNode>();
     NodeList nodeList = node.getChildNodes();
+
     if (nodeList != null) {
       for (int i = 0, n = nodeList.getLength(); i < n; i++) {
         Node node = nodeList.item(i);
@@ -301,8 +317,13 @@ public class XNode {
     return children;
   }
 
+  /**
+   *
+   * @return
+   */
   public Properties getChildrenAsProperties() {
     Properties properties = new Properties();
+
     for (XNode child : getChildren()) {
       String name = child.getStringAttribute("name");
       String value = child.getStringAttribute("value");

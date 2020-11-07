@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
  * @author Eduardo Macarron
  */
 public class MethodResolver {
+
   private final MapperAnnotationBuilder annotationBuilder;
   private Method method;
 

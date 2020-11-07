@@ -49,6 +49,7 @@ public abstract class BaseExecutor implements Executor {
 
   private static final Log log = LogFactory.getLog(BaseExecutor.class);
 
+  //
   protected Transaction transaction;
   //
   protected Executor wrapper;
@@ -61,6 +62,8 @@ public abstract class BaseExecutor implements Executor {
   protected int queryStack = 0;
   private boolean closed;
 
+
+  //构造器
   protected BaseExecutor(Configuration configuration, Transaction transaction) {
     this.transaction = transaction;
     this.deferredLoads = new ConcurrentLinkedQueue<DeferredLoad>();

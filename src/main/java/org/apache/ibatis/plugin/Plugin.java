@@ -27,12 +27,18 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
  * @author Clinton Begin
+ *
+ * jdk 动态代理 事务处理器
  */
 public class Plugin implements InvocationHandler {
 
+  //
   private Object target;
+  //
   private Interceptor interceptor;
+
   private Map<Class<?>, Set<Method>> signatureMap;
+
 
   private Plugin(Object target, Interceptor interceptor, Map<Class<?>, Set<Method>> signatureMap) {
     this.target = target;
@@ -40,6 +46,12 @@ public class Plugin implements InvocationHandler {
     this.signatureMap = signatureMap;
   }
 
+  /**
+   *
+   * @param target
+   * @param interceptor
+   * @return
+   */
   public static Object wrap(Object target, Interceptor interceptor) {
     Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
     Class<?> type = target.getClass();
@@ -53,6 +65,14 @@ public class Plugin implements InvocationHandler {
     return target;
   }
 
+  /**
+   *
+   * @param proxy
+   * @param method
+   * @param args
+   * @return
+   * @throws Throwable
+   */
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
       Set<Method> methods = signatureMap.get(method.getDeclaringClass());

@@ -32,17 +32,23 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  */
 public abstract class BaseBuilder {
 
-  //
+  // 全局配置文件
   protected final Configuration configuration;
-  //
+
+  // 尽然 == configuration中的 为啥还放这里
+  // 别名注册器   底层是个HashMap  == this.configuration.getTypeAliasRegistry();
   protected final TypeAliasRegistry typeAliasRegistry;
+  // 别名注册器   底层是个HashMap  == this.configuration.getTypeHandlerRegistry();
   protected final TypeHandlerRegistry typeHandlerRegistry;
 
+
+  // 构造器
   public BaseBuilder(Configuration configuration) {
     this.configuration = configuration;
     this.typeAliasRegistry = this.configuration.getTypeAliasRegistry();
     this.typeHandlerRegistry = this.configuration.getTypeHandlerRegistry();
   }
+
 
   public Configuration getConfiguration() {
     return configuration;

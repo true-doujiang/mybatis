@@ -44,9 +44,11 @@ import org.xml.sax.SAXParseException;
  */
 public class XPathParser {
 
+  // w3c dom
   private Document document;
   private boolean validation;
   private EntityResolver entityResolver;
+  //
   private Properties variables;
   private XPath xpath;
 
@@ -120,6 +122,14 @@ public class XPathParser {
     this.document = createDocument(new InputSource(reader));
   }
 
+  /**
+   * XMLConfigBuilder 构造器中调用
+   *
+   * @param inputStream
+   * @param validation
+   * @param variables
+   * @param entityResolver
+   */
   public XPathParser(InputStream inputStream, boolean validation, Properties variables, EntityResolver entityResolver) {
     commonConstructor(validation, variables, entityResolver);
     this.document = createDocument(new InputSource(inputStream));
@@ -225,6 +235,12 @@ public class XPathParser {
     }
   }
 
+  /**
+   * jdk 底层处理xml了  javax.xml.parsers.DocumentBuilderFactory
+   *
+   * @param inputSource
+   * @return
+   */
   private Document createDocument(InputSource inputSource) {
     // important: this must only be called AFTER common constructor
     try {

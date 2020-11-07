@@ -20,6 +20,8 @@ import javax.sql.DataSource;
 
 /**
  * @author Clinton Begin
+ *
+ * 默认有3个 DataSourceFactory 类型
  */
 public interface DataSourceFactory {
 

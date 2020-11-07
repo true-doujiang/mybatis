@@ -47,7 +47,9 @@ public class DefaultSqlSession implements SqlSession {
 
   private boolean autoCommit;
   private boolean dirty;
-  
+
+
+  //构造器
   public DefaultSqlSession(Configuration configuration, Executor executor, boolean autoCommit) {
     this.configuration = configuration;
     this.executor = executor;
@@ -220,6 +222,12 @@ public class DefaultSqlSession implements SqlSession {
     return configuration;
   }
 
+  /**
+   *
+   * @param type Mapper interface class
+   * @param <T>
+   * @return
+   */
   public <T> T getMapper(Class<T> type) {
     return configuration.<T>getMapper(type, this);
   }

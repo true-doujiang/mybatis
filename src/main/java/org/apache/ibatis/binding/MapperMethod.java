@@ -36,9 +36,11 @@ import java.util.*;
  */
 public class MapperMethod {
 
+
   private final SqlCommand command;
   private final MethodSignature method;
 
+  //构造器
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
     this.command = new SqlCommand(config, mapperInterface, method);
     this.method = new MethodSignature(config, method);
@@ -155,6 +157,10 @@ public class MapperMethod {
     return result;
   }
 
+  /**
+   *
+   * @param <V>
+   */
   public static class ParamMap<V> extends HashMap<String, V> {
 
     private static final long serialVersionUID = -2212268410512043556L;
@@ -169,6 +175,9 @@ public class MapperMethod {
 
   }
 
+  /**
+   *
+   */
   public static class SqlCommand {
 
     private final String name;
@@ -204,6 +213,9 @@ public class MapperMethod {
     }
   }
 
+  /**
+   *
+   */
   public static class MethodSignature {
 
     private final boolean returnsMany;

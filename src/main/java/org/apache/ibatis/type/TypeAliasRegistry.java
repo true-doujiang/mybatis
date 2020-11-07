@@ -37,6 +37,7 @@ import org.apache.ibatis.io.Resources;
  */
 public class TypeAliasRegistry {
 
+  // key： 别名    value： 类
   private final Map<String, Class<?>> TYPE_ALIASES = new HashMap<String, Class<?>>();
 
   public TypeAliasRegistry() {
@@ -107,7 +108,9 @@ public class TypeAliasRegistry {
       if (string == null) return null;
       String key = string.toLowerCase(Locale.ENGLISH); // issue #748
       Class<T> value;
+
       if (TYPE_ALIASES.containsKey(key)) {
+        // Map.get()
         value = (Class<T>) TYPE_ALIASES.get(key);
       } else {
         value = (Class<T>) Resources.classForName(string);
@@ -124,8 +127,12 @@ public class TypeAliasRegistry {
 
   public void registerAliases(String packageName, Class<?> superType){
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<Class<?>>();
-    resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
+    //
+    ResolverUtil.IsA isA = new ResolverUtil.IsA(superType);
+    resolverUtil.find(isA, packageName);
+    //
     Set<Class<? extends Class<?>>> typeSet = resolverUtil.getClasses();
+
     for(Class<?> type : typeSet){
       // Ignore inner classes and interfaces (including package-info.java)
       // Skip also inner classes. See issue #6
@@ -145,11 +152,16 @@ public class TypeAliasRegistry {
   }
 
   public void registerAlias(String alias, Class<?> value) {
-    if (alias == null) throw new TypeException("The parameter alias cannot be null");
+    if (alias == null) {
+      throw new TypeException("The parameter alias cannot be null");
+    }
+
     String key = alias.toLowerCase(Locale.ENGLISH); // issue #748
+
     if (TYPE_ALIASES.containsKey(key) && TYPE_ALIASES.get(key) != null && !TYPE_ALIASES.get(key).equals(value)) {
       throw new TypeException("The alias '" + alias + "' is already mapped to the value '" + TYPE_ALIASES.get(key).getName() + "'.");
     }
+
     TYPE_ALIASES.put(key, value);
   }
 

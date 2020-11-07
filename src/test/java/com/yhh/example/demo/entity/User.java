@@ -1,6 +1,8 @@
 package com.yhh.example.demo.entity;
 
 
+import org.apache.ibatis.type.Alias;
+
 import java.util.Date;
 
 /**
@@ -9,7 +11,7 @@ import java.util.Date;
  * @Version: 1.0
  * @Desc:
  */
-
+//@Alias("user") // 指定别名
 public class User {
 
     //属性名和数据库表的字段对应

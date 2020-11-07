@@ -30,6 +30,7 @@ public class ExamplePlugin implements Interceptor {
   }
 
   public Object plugin(Object target) {
+    //  Plugin implements InvocationHandler
     return Plugin.wrap(target, this);
   }
 

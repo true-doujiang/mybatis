@@ -41,9 +41,18 @@ public class MapperRegistry {
     this.config = config;
   }
 
+  /**
+   *
+   * @param type
+   * @param sqlSession
+   * @param <T>
+   * @return
+   */
   @SuppressWarnings("unchecked")
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    //
     final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
+
     if (mapperProxyFactory == null)
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
     try {
@@ -57,18 +66,27 @@ public class MapperRegistry {
     return knownMappers.containsKey(type);
   }
 
+  /**
+   *
+   * @param type XxxMapper.class
+   * @param <T>
+   */
   public <T> void addMapper(Class<T> type) {
     if (type.isInterface()) {
+
       if (hasMapper(type)) {
         throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
       }
+
       boolean loadCompleted = false;
       try {
+        //
         knownMappers.put(type, new MapperProxyFactory<T>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
         // mapper parser. If the type is already known, it won't try.
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
+        // todo
         parser.parse();
         loadCompleted = true;
       } finally {
@@ -88,10 +106,15 @@ public class MapperRegistry {
 
   /**
    * @since 3.2.2
+   *
+   *
    */
   public void addMappers(String packageName, Class<?> superType) {
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<Class<?>>();
-    resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
+    ResolverUtil.IsA isA = new ResolverUtil.IsA(superType);
+    //
+    resolverUtil.find(isA, packageName);
+
     Set<Class<? extends Class<?>>> mapperSet = resolverUtil.getClasses();
     for (Class<?> mapperClass : mapperSet) {
       addMapper(mapperClass);

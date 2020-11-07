@@ -25,6 +25,8 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
  * @author Clinton Begin
+ *
+ * 用到jdk 动态代理了
  */
 class PooledConnection implements InvocationHandler {
 

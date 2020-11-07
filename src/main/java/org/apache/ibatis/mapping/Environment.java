@@ -23,10 +23,21 @@ import org.apache.ibatis.transaction.TransactionFactory;
  * @author Clinton Begin
  */
 public final class Environment {
+
+  //
   private final String id;
+  //
   private final TransactionFactory transactionFactory;
+
+  // jdk dataSource 接口标准， 各个数据库去实现这个接口
   private final DataSource dataSource;
 
+  /**
+   *
+   * @param id
+   * @param transactionFactory
+   * @param dataSource
+   */
   public Environment(String id, TransactionFactory transactionFactory, DataSource dataSource) {
     if (id == null) {
       throw new IllegalArgumentException("Parameter 'id' must not be null");
@@ -42,32 +53,37 @@ public final class Environment {
     this.dataSource = dataSource;
   }
 
+  /**
+   * 内部类
+   */
   public static class Builder {
+
       private String id;
       private TransactionFactory transactionFactory;
       private DataSource dataSource;
 
-    public Builder(String id) {
-      this.id = id;
-    }
+      // 构造器
+      public Builder(String id) {
+        this.id = id;
+      }
 
-    public Builder transactionFactory(TransactionFactory transactionFactory) {
-      this.transactionFactory = transactionFactory;
-      return this;
-    }
+      public Builder transactionFactory(TransactionFactory transactionFactory) {
+        this.transactionFactory = transactionFactory;
+        return this;
+      }
 
-    public Builder dataSource(DataSource dataSource) {
-      this.dataSource = dataSource;
-      return this;
-    }
+      public Builder dataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+        return this;
+      }
 
-    public String id() {
-      return this.id;
-    }
+      public String id() {
+        return this.id;
+      }
 
-    public Environment build() {
-      return new Environment(this.id, this.transactionFactory, this.dataSource);
-    }
+      public Environment build() {
+        return new Environment(this.id, this.transactionFactory, this.dataSource);
+      }
 
   }
 

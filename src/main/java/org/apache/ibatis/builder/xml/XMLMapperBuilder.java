@@ -49,6 +49,8 @@ import org.apache.ibatis.type.TypeHandler;
 
 /**
  * @author Clinton Begin
+ *
+ * 解析 mapper.xml
  */
 public class XMLMapperBuilder extends BaseBuilder {
 
@@ -57,6 +59,8 @@ public class XMLMapperBuilder extends BaseBuilder {
   private Map<String, XNode> sqlFragments;
   private String resource;
 
+
+  // 构造器
   @Deprecated
   public XMLMapperBuilder(Reader reader, Configuration configuration, String resource, Map<String, XNode> sqlFragments, String namespace) {
     this(reader, configuration, resource, sqlFragments);
@@ -69,6 +73,14 @@ public class XMLMapperBuilder extends BaseBuilder {
         configuration, resource, sqlFragments);
   }
 
+  /**
+   *
+   * @param inputStream
+   * @param configuration
+   * @param resource
+   * @param sqlFragments
+   * @param namespace
+   */
   public XMLMapperBuilder(InputStream inputStream, Configuration configuration, String resource, Map<String, XNode> sqlFragments, String namespace) {
     this(inputStream, configuration, resource, sqlFragments);
     this.builderAssistant.setCurrentNamespace(namespace);

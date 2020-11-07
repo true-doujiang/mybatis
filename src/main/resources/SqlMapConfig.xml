@@ -5,18 +5,11 @@
 
 <configuration>
 
-    <!-- 加载属性文件 -->
+    <!-- 加载属性文件 resource/url -->
     <properties resource="db.properties">
         <!--properties中还可以配置一些属性名和属性值(建议：不要在这里配)  -->
         <!-- <property name="jdbc.driver" value=""/> -->
     </properties>
-
-    <!--
-        settings全局参数配置  用到的时候再配置，慎重使用
-        mybatis框架在运行时可以调整一些运行参数。 比如：开启二级缓存、开启延迟加载。。
-        <settings>
-        </settings>
-    -->
 
     <!-- 别名定义 -->
     <typeAliases>
@@ -35,18 +28,81 @@
         </typeHandlers>
      -->
 
-    <environments default="development">
-        <environment id="development">
-            <transactionManager type="JDBC" />
-            <dataSource type="POOLED">
-                <property name="driver" value="${jdbc.driver}" />
-                <property name="url" value="${jdbc.url}" />
-                <property name="username" value="${jdbc.username}" />
-                <property name="password" value="${jdbc.password}" />
-            </dataSource>
-        </environment>
-    </environments>
+    <!--
+    <plugins>
+        <plugin interceptor="">
+            <property name="" value=""/>
+        </plugin>
+        <plugin interceptor=""></plugin>
+        <plugin interceptor=""></plugin>
+    </plugins>
+    -->
 
+    <!--
+    <objectFactory type="">
+        <property name="" value=""/>
+    </objectFactory>
+    -->
+
+    <!--
+   <objectWrapperFactory type="">
+       <property name="" value=""/>
+   </objectWrapperFactory>
+   -->
+
+    <!--
+       settings全局参数配置  用到的时候再配置，慎重使用
+       mybatis框架在运行时可以调整一些运行参数。 比如：开启二级缓存、开启延迟加载。。
+       -->
+    <!--
+    <settings>
+        <setting name="cacheEnabled" value="true"/>
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="multipleResultSetsEnabled" value="true"/>
+        <setting name="useColumnLabel" value="true"/>
+        <setting name="useGeneratedKeys" value="false"/>
+        <setting name="autoMappingBehavior" value="PARTIAL"/>
+        <setting name="autoMappingUnknownColumnBehavior" value="WARNING"/>
+        <setting name="defaultExecutorType" value="SIMPLE"/>
+        <setting name="defaultStatementTimeout" value="30"/>
+        <setting name="defaultFetchSize" value="200"/>
+        <setting name="safeRowBoundsEnabled" value="false"/>
+        <setting name="mapUnderscoreToCamelCase" value="false"/>
+        <setting name="localCacheScope" value="SESSION"/>
+        <setting name="jdbcTypeForNull" value="OTHER"/>
+        <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+    </settings>
+    -->
+
+
+    <environments default="development">
+       <environment id="development">
+           <!-- JDBC / POOLED  都是在 Configuration类中定义的 typeAliasRegistry   -->
+           <transactionManager type="JDBC" />
+           <dataSource type="POOLED">
+               <property name="driver" value="${jdbc.driver}" />
+               <property name="url" value="${jdbc.url}" />
+               <property name="username" value="${jdbc.username}" />
+               <property name="password" value="${jdbc.password}" />
+           </dataSource>
+       </environment>
+   </environments>
+
+
+    <!--
+        <databaseIdProvider type="">
+            <property name="" value=""/>
+        </databaseIdProvider>
+    -->
+
+
+    <!--
+    <typeHandlers>
+        <typeHandler handler="" javaType="" jdbcType=""/>
+        <package name=""/>
+    </typeHandlers>
+     -->
+    
     <!-- 加载 映射文件 3种方式-->
     <mappers>
         <!-- 1、通过resource方法一次加载一个映射文件 -->
@@ -57,6 +113,9 @@
               ①需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录
               ②使用的是mapper代理方法（这个肯定是啊） -->
         <!--<mapper class="com.yhh.mybatis.mapper.UserMapper"/>-->
+
+        <!-- url也可以       -->
+        <!-- <mapper url="" />-->
 
         <!-- 3、指定mapper接口的包名  批量加载mapper  遵循一些规范：同第二种。 -->
         <package name="com.yhh.example.demo.mapper" />

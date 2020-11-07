@@ -2,6 +2,7 @@ package com.yhh.example.demo.mapper;
 
 import com.yhh.example.demo.entity.User;
 import com.yhh.example.demo.entity.UserCustom;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -14,6 +15,14 @@ import java.util.List;
 public interface UserMapper {
 
     //用户信息综合查询
+    //@Options
+    //@SelectKey(statement = {"xx"}, keyProperty = "", before = true, keyColumn = "xx", resultType = Object.class)
+//    @ResultMap({"xxx", "yyyy"})
+//    @Select("select * from user where user.sex=#{user.sex} and user.username like '%${user.username}%'")
+//    @Results({
+//            @Result(property = "id", column = "id", javaType = Long.class),
+//            @Result(property = "username", column = "username")
+//    })
     List<UserCustom> findUserList(User user) throws Exception;
 
     //用户信息综合查询总数

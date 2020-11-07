@@ -42,7 +42,10 @@ public class JdbcTransaction implements Transaction {
   private static final Log log = LogFactory.getLog(JdbcTransaction.class);
 
   protected Connection connection;
+
   protected DataSource dataSource;
+
+  // 事务级别
   protected TransactionIsolationLevel level;
   protected boolean autoCommmit;
 

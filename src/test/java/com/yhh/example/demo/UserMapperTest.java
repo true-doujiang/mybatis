@@ -21,9 +21,11 @@ public class UserMapperTest {
         String resource = "SqlMapConfig.xml";
         InputStream inputStream = Resources.getResourceAsStream(resource);
         SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+        //
         SqlSessionFactory sqlSessionFactory = builder.build(inputStream);
 
         SqlSession sqlSession = sqlSessionFactory.openSession();
+        // userMapperProxy
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
 
         List<User> list = userMapper.findUserByName("小明1");

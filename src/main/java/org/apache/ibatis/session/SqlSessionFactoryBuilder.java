@@ -62,6 +62,12 @@ public class SqlSessionFactoryBuilder {
     }
   }
 
+  /**
+   * 用户代码调用，并传入全局配置文件stream
+   *
+   * @param inputStream
+   * @return
+   */
   public SqlSessionFactory build(InputStream inputStream) {
     return build(inputStream, null, null);
   }
@@ -74,11 +80,23 @@ public class SqlSessionFactoryBuilder {
     return build(inputStream, null, properties);
   }
 
+  /**
+   *
+   *
+   * @param inputStream
+   * @param environment
+   * @param properties
+   * @return
+   */
   public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
     try {
+      // XMLConfigBuilder extends BaseBuilder{configuration}
       XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
-      Configuration parse = parser.parse();
-      return build(parse);
+      // 解析mybatis全局配置文件、 初始换框架的  typeHandler、interceptor、mapper代理..... 默认参数啊
+      Configuration config = parser.parse();
+
+      // 创建 DefaultSqlSessionFactory
+      return build(config);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error building SqlSession.", e);
     } finally {

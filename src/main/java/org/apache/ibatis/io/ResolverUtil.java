@@ -65,6 +65,8 @@ public class ResolverUtil<T> {
   /**
    * A simple interface that specifies how to test classes to determine if they
    * are to be included in the results produced by the ResolverUtil.
+   *
+   * 接口  2个实现类
    */
   public static interface Test {
     /**
@@ -77,8 +79,11 @@ public class ResolverUtil<T> {
   /**
    * A Test that checks to see if each class is assignable to the provided class. Note
    * that this test will match the parent type itself if it is presented for matching.
+   *
+   * 第一个
    */
   public static class IsA implements Test {
+    //
     private Class<?> parent;
 
     /** Constructs an IsA test using the supplied Class as the parent class/interface. */
@@ -100,8 +105,11 @@ public class ResolverUtil<T> {
   /**
    * A Test that checks to see if each class is annotated with a specific annotation. If it
    * is, then the test returns true, otherwise false.
+   *
+   * 第二个
    */
   public static class AnnotatedWith implements Test {
+
     private Class<? extends Annotation> annotation;
 
     /** Constructs an AnnotatedWith test for the specified annotation type. */
@@ -119,6 +127,9 @@ public class ResolverUtil<T> {
       return "annotated with @" + annotation.getSimpleName();
     }
   }
+
+
+
 
   /** The set of matches being accumulated. */
   private Set<Class<? extends T>> matches = new HashSet<Class<? extends T>>();
@@ -208,8 +219,11 @@ public class ResolverUtil<T> {
    * @param test an instance of {@link Test} that will be used to filter classes
    * @param packageName the name of the package from which to start scanning for
    *        classes, e.g. {@code net.sourceforge.stripes}
+   *
+   *
    */
   public ResolverUtil<T> find(Test test, String packageName) {
+    // . 换成 /
     String path = getPackagePath(packageName);
 
     try {
@@ -245,6 +259,7 @@ public class ResolverUtil<T> {
   @SuppressWarnings("unchecked")
   protected void addIfMatching(Test test, String fqn) {
     try {
+
       String externalName = fqn.substring(0, fqn.indexOf('.')).replace('/', '.');
       ClassLoader loader = getClassLoader();
       log.debug("Checking to see if class " + externalName + " matches criteria [" + test + "]");

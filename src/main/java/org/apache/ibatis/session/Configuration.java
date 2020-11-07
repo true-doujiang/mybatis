@@ -89,11 +89,16 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
  * @author Clinton Begin
+ *
+ *
+ * 全局配置文件映射
  */
 public class Configuration {
 
+  // 数据库地址、事务处理器 等信息
   protected Environment environment;
 
+  // <settings> 配置的全局属性   自带默认值
   protected boolean safeRowBoundsEnabled = false;
   protected boolean safeResultHandlerEnabled = true;
   protected boolean mapUnderscoreToCamelCase = false;
@@ -114,21 +119,27 @@ public class Configuration {
   protected Set<String> lazyLoadTriggerMethods = new HashSet<String>(Arrays.asList(new String[] { "equals", "clone", "hashCode", "toString" }));
   protected Integer defaultStatementTimeout;
 
+  // 默认 simple Executor
   protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
 
+  // todo
   protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
 
-  protected Properties variables = new Properties();
   //
+  protected Properties variables = new Properties();
+  // todo
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
-  //
+  // mapper接口注册器  底层是个HashMap   ******很重要******
   protected MapperRegistry mapperRegistry = new MapperRegistry(this);
 
   protected boolean lazyLoadingEnabled = false;
+
+  // cglib | javassist   创建具有延迟加载能力对象所使用的代理工具
   protected ProxyFactory proxyFactory;
 
   protected String databaseId;
+
   /**
    * Configuration factory class.
    * Used to create Configuration for loading deserialized unread properties.
@@ -137,14 +148,23 @@ public class Configuration {
    */
   protected Class<?> configurationFactory;
 
+  // 拦截器链
   protected final InterceptorChain interceptorChain = new InterceptorChain();
+  // 类型映射器
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
+  // 别名注册器   底层是个HashMap
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
+  /**
+   *
+   */
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection");
+
   protected final Map<String, Cache> caches = new StrictMap<Cache>("Caches collection");
   protected final Map<String, ResultMap> resultMaps = new StrictMap<ResultMap>("Result Maps collection");
+
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<ParameterMap>("Parameter Maps collection");
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<KeyGenerator>("Key Generators collection");
 
@@ -163,15 +183,23 @@ public class Configuration {
    */
   protected final Map<String, String> cacheRefMap = new HashMap<String, String>();
 
+
+
   public Configuration(Environment environment) {
     this();
     this.environment = environment;
   }
 
+  /**
+   * 默认构造器
+   */
   public Configuration() {
+
+    // 事务处理 工厂    全局配置文件中 environment标签中引用
     typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
     typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);
 
+    // dataSource 工厂   全局配置文件中 environment标签中引用
     typeAliasRegistry.registerAlias("JNDI", JndiDataSourceFactory.class);
     typeAliasRegistry.registerAlias("POOLED", PooledDataSourceFactory.class);
     typeAliasRegistry.registerAlias("UNPOOLED", UnpooledDataSourceFactory.class);
@@ -197,6 +225,7 @@ public class Configuration {
 
     typeAliasRegistry.registerAlias("CGLIB", CglibProxyFactory.class);
     typeAliasRegistry.registerAlias("JAVASSIST", JavassistProxyFactory.class);
+
 
     languageRegistry.setDefaultDriverClass(XMLLanguageDriver.class);
     languageRegistry.register(RawLanguageDriver.class);
@@ -482,10 +511,18 @@ public class Configuration {
     return newExecutor(transaction, defaultExecutorType);
   }
 
+  /**
+   *
+   * @param transaction
+   * @param executorType
+   * @return
+   */
   public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
     executorType = executorType == null ? defaultExecutorType : executorType;
     executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
+
     Executor executor;
+
     if (ExecutorType.BATCH == executorType) {
       executor = new BatchExecutor(this, transaction);
     } else if (ExecutorType.REUSE == executorType) {
@@ -493,9 +530,11 @@ public class Configuration {
     } else {
       executor = new SimpleExecutor(this, transaction);
     }
+
     if (cacheEnabled) {
       executor = new CachingExecutor(executor);
     }
+    //
     executor = (Executor) interceptorChain.pluginAll(executor);
     return executor;
   }

@@ -93,11 +93,18 @@ public class MapperAnnotationBuilder {
 
   private Configuration configuration;
   private MapperBuilderAssistant assistant;
+  // XxxMapper.class
   private Class<?> type;
 
+  /**
+   *
+   * @param configuration
+   * @param type
+   */
   public MapperAnnotationBuilder(Configuration configuration, Class<?> type) {
     String resource = type.getName().replace('.', '/') + ".java (best guess)";
     this.assistant = new MapperBuilderAssistant(configuration, resource);
+    //
     this.configuration = configuration;
     this.type = type;
 
@@ -112,14 +119,19 @@ public class MapperAnnotationBuilder {
     sqlProviderAnnotationTypes.add(DeleteProvider.class);
   }
 
+  //
   public void parse() {
     String resource = type.toString();
+
     if (!configuration.isResourceLoaded(resource)) {
+      //
       loadXmlResource();
       configuration.addLoadedResource(resource);
       assistant.setCurrentNamespace(type.getName());
+
       parseCache();
       parseCacheRef();
+
       Method[] methods = type.getMethods();
       for (Method method : methods) {
         try {
@@ -131,6 +143,7 @@ public class MapperAnnotationBuilder {
         }
       }
     }
+
     parsePendingMethods();
   }
 
@@ -243,17 +256,26 @@ public class MapperAnnotationBuilder {
     return null;
   }
 
+  /**
+   *
+   * @param method
+   */
   void parseStatement(Method method) {
     Class<?> parameterTypeClass = getParameterType(method);
     LanguageDriver languageDriver = getLanguageDriver(method);
+
     SqlSource sqlSource = getSqlSourceFromAnnotations(method, parameterTypeClass, languageDriver);
     if (sqlSource != null) {
       Options options = method.getAnnotation(Options.class);
+
       final String mappedStatementId = type.getName() + "." + method.getName();
+
       Integer fetchSize = null;
       Integer timeout = null;
+
       StatementType statementType = StatementType.PREPARED;
       ResultSetType resultSetType = ResultSetType.FORWARD_ONLY;
+
       SqlCommandType sqlCommandType = getSqlCommandType(method);
       boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
       boolean flushCache = !isSelect;
@@ -262,6 +284,7 @@ public class MapperAnnotationBuilder {
       KeyGenerator keyGenerator;
       String keyProperty = "id";
       String keyColumn = null;
+
       if (SqlCommandType.INSERT.equals(sqlCommandType) || SqlCommandType.UPDATE.equals(sqlCommandType)) {
         // first check for SelectKey annotation - that overrides everything else
         SelectKey selectKey = method.getAnnotation(SelectKey.class);
@@ -296,7 +319,9 @@ public class MapperAnnotationBuilder {
         String[] resultMaps = resultMapAnnotation.value();
         StringBuilder sb = new StringBuilder();
         for (String resultMap : resultMaps) {
-          if (sb.length() > 0) sb.append(",");
+          if (sb.length() > 0) {
+            sb.append(",");
+          }
           sb.append(resultMap);
         }
         resultMapId = sb.toString();
@@ -425,9 +450,11 @@ public class MapperAnnotationBuilder {
   }
 
   private SqlCommandType getSqlCommandType(Method method) {
+
     Class<? extends Annotation> type = getSqlAnnotationType(method);
 
     if (type == null) {
+
       type = getSqlProviderAnnotationType(method);
 
       if (type == null) {
