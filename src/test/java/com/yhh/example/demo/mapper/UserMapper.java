@@ -23,7 +23,7 @@ public interface UserMapper {
 //            @Result(property = "id", column = "id", javaType = Long.class),
 //            @Result(property = "username", column = "username")
 //    })
-    List<UserCustom> findUserList(User user) throws Exception;
+    List<UserCustom> findUserList(@Param(value = "user") User user) throws Exception;
 
     //用户信息综合查询总数
     int findUserCount(User user) throws Exception;

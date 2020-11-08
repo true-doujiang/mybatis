@@ -158,7 +158,7 @@ public class Configuration {
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
   /**
-   *
+   * todo 什么时候初始化的
    */
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection");
 
@@ -501,8 +501,16 @@ public class Configuration {
     return resultSetHandler;
   }
 
-  public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
-    StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
+
+  /**
+   *
+   */
+  public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject,
+                                              RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+
+    StatementHandler statementHandler =
+            new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
+    // 绑定拦截器
     statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
     return statementHandler;
   }
@@ -512,7 +520,7 @@ public class Configuration {
   }
 
   /**
-   *
+   * 创建Executor 并绑定拦截器
    * @param transaction
    * @param executorType
    * @return
@@ -699,7 +707,7 @@ public class Configuration {
   }
 
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
-    return mapperRegistry.getMapper(type, sqlSession);
+    return mapperRegistry.<T>getMapper(type, sqlSession);
   }
 
   public boolean hasMapper(Class<?> type) {

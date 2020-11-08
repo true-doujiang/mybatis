@@ -37,10 +37,15 @@ public class DynamicContext {
     OgnlRuntime.setPropertyAccessor(ContextMap.class, new ContextAccessor());
   }
 
+  // 内部类  构造器中初始化
   private final ContextMap bindings;
+  //
   private final StringBuilder sqlBuilder = new StringBuilder();
   private int uniqueNumber = 0;
 
+
+
+  //构造器
   public DynamicContext(Configuration configuration, Object parameterObject) {
     if (parameterObject != null && !(parameterObject instanceof Map)) {
       MetaObject metaObject = configuration.newMetaObject(parameterObject);
@@ -48,6 +53,7 @@ public class DynamicContext {
     } else {
       bindings = new ContextMap(null);
     }
+
     bindings.put(PARAMETER_OBJECT_KEY, parameterObject);
     bindings.put(DATABASE_ID_KEY, configuration.getDatabaseId());
   }
@@ -73,10 +79,17 @@ public class DynamicContext {
     return uniqueNumber++;
   }
 
+  /**
+   *
+   */
   static class ContextMap extends HashMap<String, Object> {
+
     private static final long serialVersionUID = 2977601501966151582L;
 
     private MetaObject parameterMetaObject;
+
+
+    // 构造器
     public ContextMap(MetaObject parameterMetaObject) {
       this.parameterMetaObject = parameterMetaObject;
     }
@@ -107,10 +120,12 @@ public class DynamicContext {
     }
   }
 
+  /**
+   *
+   */
   static class ContextAccessor implements PropertyAccessor {
 
-    public Object getProperty(Map context, Object target, Object name)
-        throws OgnlException {
+    public Object getProperty(Map context, Object target, Object name) throws OgnlException {
       Map map = (Map) target;
 
       Object result = map.get(name);
@@ -126,10 +141,13 @@ public class DynamicContext {
       return null;
     }
 
-    public void setProperty(Map context, Object target, Object name, Object value)
-        throws OgnlException {
+    public void setProperty(Map context, Object target, Object name, Object value) throws OgnlException {
       Map map = (Map) target;
       map.put(name, value);
     }
+
   }
+
+
+
 }

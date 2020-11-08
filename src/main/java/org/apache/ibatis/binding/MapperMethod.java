@@ -36,9 +36,11 @@ import java.util.*;
  */
 public class MapperMethod {
 
-
+  // 2个内部类
   private final SqlCommand command;
   private final MethodSignature method;
+
+
 
   //构造器
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
@@ -46,8 +48,15 @@ public class MapperMethod {
     this.method = new MethodSignature(config, method);
   }
 
+  /**
+   *
+   * @param sqlSession
+   * @param args
+   * @return
+   */
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
+
     if (SqlCommandType.INSERT == command.getType()) {
       Object param = method.convertArgsToSqlCommandParam(args);
       result = rowCountResult(sqlSession.insert(command.getName(), param));
@@ -58,10 +67,12 @@ public class MapperMethod {
       Object param = method.convertArgsToSqlCommandParam(args);
       result = rowCountResult(sqlSession.delete(command.getName(), param));
     } else if (SqlCommandType.SELECT == command.getType()) {
+      // 查询
       if (method.returnsVoid() && method.hasResultHandler()) {
         executeWithResultHandler(sqlSession, args);
         result = null;
       } else if (method.returnsMany()) {
+        //
         result = executeForMany(sqlSession, args);
       } else if (method.returnsMap()) {
         result = executeForMap(sqlSession, args);
@@ -72,10 +83,12 @@ public class MapperMethod {
     } else {
       throw new BindingException("Unknown execution method for: " + command.getName());
     }
+
     if (result == null && method.getReturnType().isPrimitive() && !method.returnsVoid()) {
       throw new BindingException("Mapper method '" + command.getName() 
           + " attempted to return null from a method with a primitive return type (" + method.getReturnType() + ").");
     }
+
     return result;
   }
 
@@ -111,15 +124,25 @@ public class MapperMethod {
     }
   }
 
+  /**
+   *
+   * @param sqlSession
+   * @param args
+   * @param <E>
+   * @return
+   */
   private <E> Object executeForMany(SqlSession sqlSession, Object[] args) {
     List<E> result;
+    // 处理参数
     Object param = method.convertArgsToSqlCommandParam(args);
+
     if (method.hasRowBounds()) {
       RowBounds rowBounds = method.extractRowBounds(args);
       result = sqlSession.<E>selectList(command.getName(), param, rowBounds);
     } else {
       result = sqlSession.<E>selectList(command.getName(), param);
     }
+
     // issue #510 Collections & arrays support
     if (!method.getReturnType().isAssignableFrom(result.getClass())) {
       if (method.getReturnType().isArray()) {
@@ -128,6 +151,7 @@ public class MapperMethod {
         return convertToDeclaredCollection(sqlSession.getConfiguration(), result);
       }
     }
+
     return result;
   }
 
@@ -157,6 +181,7 @@ public class MapperMethod {
     return result;
   }
 
+
   /**
    *
    * @param <V>
@@ -177,10 +202,13 @@ public class MapperMethod {
 
   /**
    *
+   *
    */
   public static class SqlCommand {
 
+    // XxxMapper.methodName
     private final String name;
+    // insert , delete , select , update
     private final SqlCommandType type;
 
     public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) throws BindingException {
@@ -214,7 +242,7 @@ public class MapperMethod {
   }
 
   /**
-   *
+   * 记录 返回值类型、返回多个还是一个、
    */
   public static class MethodSignature {
 
@@ -225,6 +253,7 @@ public class MapperMethod {
     private final String mapKey;
     private final Integer resultHandlerIndex;
     private final Integer rowBoundsIndex;
+    //
     private final SortedMap<Integer, String> params;
     private final boolean hasNamedParameters;
 
@@ -239,6 +268,7 @@ public class MapperMethod {
       this.resultHandlerIndex = getUniqueParamIndex(method, ResultHandler.class);
       this.params = Collections.unmodifiableSortedMap(getParams(method, this.hasNamedParameters));
     }
+
 
     public Object convertArgsToSqlCommandParam(Object[] args) {
       final int paramCount = params.size();
@@ -300,7 +330,9 @@ public class MapperMethod {
 
     private Integer getUniqueParamIndex(Method method, Class<?> paramType) {
       Integer index = null;
+
       final Class<?>[] argTypes = method.getParameterTypes();
+
       for (int i = 0; i < argTypes.length; i++) {
         if (paramType.isAssignableFrom(argTypes[i])) {
           if (index == null) {

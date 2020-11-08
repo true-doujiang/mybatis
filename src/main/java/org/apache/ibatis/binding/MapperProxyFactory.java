@@ -27,7 +27,7 @@ import org.apache.ibatis.session.SqlSession;
  */
 public class MapperProxyFactory<T> {
 
-  // XxxMapper.class
+  // XxxMapper.class  target 被代理类
   private final Class<T> mapperInterface;
   //
   private Map<Method, MapperMethod> methodCache = new ConcurrentHashMap<Method, MapperMethod>();

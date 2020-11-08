@@ -37,6 +37,8 @@ public class MetaObject {
   private ObjectFactory objectFactory;
   private ObjectWrapperFactory objectWrapperFactory;
 
+
+  // 构造器
   private MetaObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory) {
     this.originalObject = object;
     this.objectFactory = objectFactory;

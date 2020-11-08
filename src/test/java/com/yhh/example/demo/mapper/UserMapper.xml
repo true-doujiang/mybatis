@@ -5,6 +5,23 @@
 
 <mapper namespace="com.yhh.example.demo.mapper.UserMapper">
 
+<!--
+    <parameterMap id="" type="">
+        <parameter property=""></parameter>
+    </parameterMap>
+-->
+    <resultMap id="userResultMap" type="com.yhh.example.demo.entity.User">
+        <id property="id" column="id" jdbcType="INTEGER" />
+        <result property="username" column="username" />
+
+<!--        <association property="username"/>-->
+<!--        <collection property="username"/>-->
+<!--        <constructor><arg></arg></constructor>-->
+<!--        <discriminator javaType="">-->
+<!--            <case value=""></case>-->
+<!--        </discriminator>-->
+    </resultMap>
+
     <!-- 用户信息综合查询
          #{userCustom.sex}:取出包装对象中性别值
          使用resultType进行输出映射，只有查询出来的列名和pojo中的属性名一致，该列才可以映射成功。

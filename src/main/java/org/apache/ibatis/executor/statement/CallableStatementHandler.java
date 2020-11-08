@@ -38,6 +38,8 @@ import org.apache.ibatis.type.JdbcType;
  */
 public class CallableStatementHandler extends BaseStatementHandler {
 
+
+  // 构造器
   public CallableStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }

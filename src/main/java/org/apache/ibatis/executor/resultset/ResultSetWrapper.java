@@ -49,18 +49,23 @@ class ResultSetWrapper {
   private Map<String, List<String>> mappedColumnNamesMap = new HashMap<String, List<String>>();
   private Map<String, List<String>> unMappedColumnNamesMap = new HashMap<String, List<String>>();
 
+
+  // 构造器
   public ResultSetWrapper(ResultSet rs, Configuration configuration) throws SQLException {
     super();
     this.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
     this.resultSet = rs;
+
     final ResultSetMetaData metaData = rs.getMetaData();
     final int columnCount = metaData.getColumnCount();
+
     for (int i = 1; i <= columnCount; i++) {
       columnNames.add(configuration.isUseColumnLabel() ? metaData.getColumnLabel(i) : metaData.getColumnName(i));
       jdbcTypes.add(JdbcType.forCode(metaData.getColumnType(i)));
       classNames.add(metaData.getColumnClassName(i));
     }
   }
+
 
   public ResultSet getResultSet() {
     return resultSet;
@@ -81,13 +86,16 @@ class ResultSetWrapper {
    */
   public TypeHandler<?> getTypeHandler(Class<?> propertyType, String columnName) {
     TypeHandler<?> handler = null;
+
     Map<Class<?>, TypeHandler<?>> columnHandlers = typeHandlerMap.get(columnName);
+
     if (columnHandlers == null) {
       columnHandlers = new HashMap<Class<?>, TypeHandler<?>>();
       typeHandlerMap.put(columnName, columnHandlers);
     } else {
       handler = columnHandlers.get(propertyType);
     }
+
     if (handler == null) {
       handler = typeHandlerRegistry.getTypeHandler(propertyType);
       // Replicate logic of UnknownTypeHandler#resolveTypeHandler
@@ -104,11 +112,13 @@ class ResultSetWrapper {
           handler = typeHandlerRegistry.getTypeHandler(jdbcType);
         }
       }
+
       if (handler == null || handler instanceof UnknownTypeHandler) {
         handler = new ObjectTypeHandler();
       }
       columnHandlers.put(propertyType, handler);
     }
+
     return handler;
   }
 

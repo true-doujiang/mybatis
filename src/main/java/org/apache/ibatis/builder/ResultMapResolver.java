@@ -25,7 +25,10 @@ import org.apache.ibatis.mapping.ResultMapping;
  * @author Eduardo Macarron
  */
 public class ResultMapResolver {
+
+
   private final MapperBuilderAssistant assistant;
+
   private String id;
   private Class<?> type;
   private String extend;

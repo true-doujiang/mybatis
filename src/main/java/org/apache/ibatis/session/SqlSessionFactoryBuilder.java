@@ -91,9 +91,9 @@ public class SqlSessionFactoryBuilder {
   public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
     try {
       // XMLConfigBuilder extends BaseBuilder{configuration}
-      XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
+      XMLConfigBuilder xmlConfigBuilder = new XMLConfigBuilder(inputStream, environment, properties);
       // 解析mybatis全局配置文件、 初始换框架的  typeHandler、interceptor、mapper代理..... 默认参数啊
-      Configuration config = parser.parse();
+      Configuration config = xmlConfigBuilder.parse();
 
       // 创建 DefaultSqlSessionFactory
       return build(config);

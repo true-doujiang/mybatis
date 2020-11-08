@@ -35,9 +35,12 @@ import org.apache.ibatis.session.RowBounds;
  */
 public class PreparedStatementHandler extends BaseStatementHandler {
 
+
+  // 构造器
   public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }
+
 
   public int update(Statement statement) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
@@ -60,6 +63,12 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     return resultSetHandler.<E> handleResultSets(ps);
   }
 
+  /**
+   *
+   * @param connection
+   * @return
+   * @throws SQLException
+   */
   protected Statement instantiateStatement(Connection connection) throws SQLException {
     String sql = boundSql.getSql();
     if (mappedStatement.getKeyGenerator() instanceof Jdbc3KeyGenerator) {

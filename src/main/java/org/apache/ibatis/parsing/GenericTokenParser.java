@@ -24,18 +24,27 @@ public class GenericTokenParser {
   private final String closeToken;
   private final TokenHandler handler;
 
+
+  // 构造器
   public GenericTokenParser(String openToken, String closeToken, TokenHandler handler) {
     this.openToken = openToken;
     this.closeToken = closeToken;
     this.handler = handler;
   }
 
+  /**
+   *
+   * @param text sqlMap中的sql
+   * @return
+   */
   public String parse(String text) {
     StringBuilder builder = new StringBuilder();
+
     if (text != null && text.length() > 0) {
       char[] src = text.toCharArray();
       int offset = 0;
       int start = text.indexOf(openToken, offset);
+
       while (start > -1) {
         if (start > 0 && src[start - 1] == '\\') {
           // the variable is escaped. remove the backslash.
@@ -56,10 +65,12 @@ public class GenericTokenParser {
         }
         start = text.indexOf(openToken, offset);
       }
+
       if (offset < src.length) {
         builder.append(src, offset, src.length - offset);
       }
     }
+
     return builder.toString();
   }
 

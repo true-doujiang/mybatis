@@ -34,16 +34,24 @@ class PooledConnection implements InvocationHandler {
   private static final Class<?>[] IFACES = new Class<?>[] { Connection.class };
 
   private int hashCode = 0;
+
   private PooledDataSource dataSource;
+  // 真正的jdbc connection
   private Connection realConnection;
+  // 代理 connection
   private Connection proxyConnection;
+
+
   private long checkoutTimestamp;
   private long createdTimestamp;
   private long lastUsedTimestamp;
   private int connectionTypeCode;
   private boolean valid;
 
+
   /*
+   * 构造器
+   *
    * Constructor for SimplePooledConnection that uses the Connection and PooledDataSource passed in
    *
    * @param connection - the connection that is to be presented as a pooled connection

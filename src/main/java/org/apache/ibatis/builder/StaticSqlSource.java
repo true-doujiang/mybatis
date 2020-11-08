@@ -31,6 +31,8 @@ public class StaticSqlSource implements SqlSource {
   private List<ParameterMapping> parameterMappings;
   private Configuration configuration;
 
+
+  // 构造器
   public StaticSqlSource(Configuration configuration, String sql) {
     this(configuration, sql, null);
   }
@@ -40,6 +42,8 @@ public class StaticSqlSource implements SqlSource {
     this.parameterMappings = parameterMappings;
     this.configuration = configuration;
   }
+
+
 
   public BoundSql getBoundSql(Object parameterObject) {
     return new BoundSql(configuration, sql, parameterMappings, parameterObject);

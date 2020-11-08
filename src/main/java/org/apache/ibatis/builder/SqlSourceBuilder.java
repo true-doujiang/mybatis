@@ -35,23 +35,37 @@ public class SqlSourceBuilder extends BaseBuilder {
 
   private static final String parameterProperties = "javaType,jdbcType,mode,numericScale,resultMap,typeHandler,jdbcTypeName";
 
+  
+  //构造器
   public SqlSourceBuilder(Configuration configuration) {
     super(configuration);
   }
 
+  /**
+   * 
+   * @param originalSql
+   * @param parameterType
+   * @param additionalParameters
+   * @return
+   */
   public SqlSource parse(String originalSql, Class<?> parameterType, Map<String, Object> additionalParameters) {
     ParameterMappingTokenHandler handler = new ParameterMappingTokenHandler(configuration, parameterType, additionalParameters);
-    GenericTokenParser parser = new GenericTokenParser("#{", "}", handler);
-    String sql = parser.parse(originalSql);
+    GenericTokenParser partokenParserer = new GenericTokenParser("#{", "}", handler);
+    String sql = partokenParserer.parse(originalSql);
     return new StaticSqlSource(configuration, sql, handler.getParameterMappings());
   }
 
+
+  /**
+   *
+   */
   private static class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandler {
 
     private List<ParameterMapping> parameterMappings = new ArrayList<ParameterMapping>();
     private Class<?> parameterType;
     private MetaObject metaParameters;
 
+    // 构造器
     public ParameterMappingTokenHandler(Configuration configuration, Class<?> parameterType, Map<String, Object> additionalParameters) {
       super(configuration);
       this.parameterType = parameterType;

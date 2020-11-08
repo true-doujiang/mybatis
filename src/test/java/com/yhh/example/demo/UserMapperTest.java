@@ -25,10 +25,10 @@ public class UserMapperTest {
         SqlSessionFactory sqlSessionFactory = builder.build(inputStream);
 
         SqlSession sqlSession = sqlSessionFactory.openSession();
-        // userMapperProxy
+        // userMapperProxy   MapperProxy<T> implements InvocationHandler
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
 
-        List<User> list = userMapper.findUserByName("小明1");
+        List<User> list = userMapper.findUserByName("小明");
         sqlSession.close();
         System.out.println(list);
     }

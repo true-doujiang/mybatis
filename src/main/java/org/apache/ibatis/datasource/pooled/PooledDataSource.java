@@ -58,6 +58,9 @@ public class PooledDataSource implements DataSource {
 
   private int expectedConnectionTypeCode;
 
+
+
+  // 构造器
   public PooledDataSource() {
     dataSource = new UnpooledDataSource();
   }
@@ -82,8 +85,13 @@ public class PooledDataSource implements DataSource {
     expectedConnectionTypeCode = assembleConnectionTypeCode(dataSource.getUrl(), dataSource.getUsername(), dataSource.getPassword());
   }
 
+  /**
+   *
+   */
   public Connection getConnection() throws SQLException {
-    return popConnection(dataSource.getUsername(), dataSource.getPassword()).getProxyConnection();
+    //
+    PooledConnection pooledConnection = popConnection(dataSource.getUsername(), dataSource.getPassword());
+    return pooledConnection.getProxyConnection();
   }
 
   public Connection getConnection(String username, String password) throws SQLException {
@@ -356,6 +364,13 @@ public class PooledDataSource implements DataSource {
     }
   }
 
+  /**
+   *
+   * @param username
+   * @param password
+   * @return
+   * @throws SQLException
+   */
   private PooledConnection popConnection(String username, String password) throws SQLException {
     boolean countedWait = false;
     PooledConnection conn = null;

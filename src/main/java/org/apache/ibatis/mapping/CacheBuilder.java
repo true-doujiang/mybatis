@@ -36,6 +36,7 @@ import org.apache.ibatis.reflection.SystemMetaObject;
  * @author Clinton Begin
  */
 public class CacheBuilder {
+
   private String id;
   private Class<? extends Cache> implementation;
   private List<Class<? extends Cache>> decorators;
@@ -43,6 +44,8 @@ public class CacheBuilder {
   private Long clearInterval;
   private boolean readWrite;
   private Properties properties;
+
+
 
   public CacheBuilder(String id) {
     this.id = id;

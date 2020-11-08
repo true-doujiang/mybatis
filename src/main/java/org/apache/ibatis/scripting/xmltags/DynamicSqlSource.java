@@ -28,23 +28,34 @@ import org.apache.ibatis.session.Configuration;
 public class DynamicSqlSource implements SqlSource {
 
   private Configuration configuration;
+  // MixedSqlNode 保存sqlMap中的sql
   private SqlNode rootSqlNode;
 
+
+  // 构造器
   public DynamicSqlSource(Configuration configuration, SqlNode rootSqlNode) {
     this.configuration = configuration;
     this.rootSqlNode = rootSqlNode;
   }
 
   public BoundSql getBoundSql(Object parameterObject) {
+    // 动态参数
     DynamicContext context = new DynamicContext(configuration, parameterObject);
+    // context = 完整的sql了
     rootSqlNode.apply(context);
+
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
+
     Class<?> parameterType = parameterObject == null ? Object.class : parameterObject.getClass();
+
+    // StaticSqlSource
     SqlSource sqlSource = sqlSourceParser.parse(context.getSql(), parameterType, context.getBindings());
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
+
     for (Map.Entry<String, Object> entry : context.getBindings().entrySet()) {
       boundSql.setAdditionalParameter(entry.getKey(), entry.getValue());
     }
+
     return boundSql;
   }
 

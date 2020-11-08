@@ -35,18 +35,24 @@ public final class MappedStatement {
 
   private String resource;
   private Configuration configuration;
+
   private String id;
   private Integer fetchSize;
   private Integer timeout;
+  // jdbc Statement 类型
   private StatementType statementType;
   private ResultSetType resultSetType;
+  // 动态sql DynamicSqlSource
   private SqlSource sqlSource;
+  // 缓存
   private Cache cache;
+
   private ParameterMap parameterMap;
   private List<ResultMap> resultMaps;
   private boolean flushCacheRequired;
   private boolean useCache;
   private boolean resultOrdered;
+
   private SqlCommandType sqlCommandType;
   private KeyGenerator keyGenerator;
   private String[] keyProperties;
@@ -61,8 +67,14 @@ public final class MappedStatement {
     // constructor disabled
   }
 
+
+  /**
+   *
+   */
   public static class Builder {
+
     private MappedStatement mappedStatement = new MappedStatement();
+
 
     public Builder(Configuration configuration, String id, SqlSource sqlSource, SqlCommandType sqlCommandType) {
       mappedStatement.configuration = configuration;
@@ -75,7 +87,10 @@ public final class MappedStatement {
       mappedStatement.sqlCommandType = sqlCommandType;
       mappedStatement.keyGenerator = configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType) ? new Jdbc3KeyGenerator() : new NoKeyGenerator();
       String logId = id;
-      if (configuration.getLogPrefix() != null) logId = configuration.getLogPrefix() + id;
+      if (configuration.getLogPrefix() != null) {
+        logId = configuration.getLogPrefix() + id;
+      }
+
       mappedStatement.statementLog = LogFactory.getLog(logId);
       mappedStatement.lang = configuration.getDefaultScriptingLanuageInstance();
     }
@@ -273,9 +288,16 @@ public final class MappedStatement {
   public String[] getResulSets() {
     return resultSets;
   }
-  
+
+  /**
+   *  把参数 拼接到sql中
+   *
+   * @param parameterObject
+   * @return
+   */
   public BoundSql getBoundSql(Object parameterObject) {
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
+
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
     if (parameterMappings == null || parameterMappings.size() <= 0) {
       boundSql = new BoundSql(configuration, boundSql.getSql(), parameterMap.getParameterMappings(), parameterObject);

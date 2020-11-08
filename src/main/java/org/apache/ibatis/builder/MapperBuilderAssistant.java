@@ -113,15 +113,26 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
   }
 
+  /**
+   *
+   * @param typeClass
+   * @param evictionClass
+   * @param flushInterval
+   * @param size
+   * @param readWrite
+   * @param props
+   * @return
+   */
   public Cache useNewCache(Class<? extends Cache> typeClass,
       Class<? extends Cache> evictionClass,
       Long flushInterval,
       Integer size,
       boolean readWrite,
       Properties props) {
-    typeClass = valueOrDefault(typeClass, PerpetualCache.class);
-    evictionClass = valueOrDefault(evictionClass, LruCache.class);
-    Cache cache = new CacheBuilder(currentNamespace)
+
+      typeClass = valueOrDefault(typeClass, PerpetualCache.class);
+      evictionClass = valueOrDefault(evictionClass, LruCache.class);
+      Cache cache = new CacheBuilder(currentNamespace)
         .implementation(typeClass)
         .addDecorator(evictionClass)
         .clearInterval(flushInterval)
@@ -129,6 +140,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .readWrite(readWrite)
         .properties(props)
         .build();
+
     configuration.addCache(cache);
     currentCache = cache;
     return cache;
@@ -208,19 +220,11 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return resultMap;
   }
 
-  public Discriminator buildDiscriminator(
-      Class<?> resultType,
-      String column,
-      Class<?> javaType,
-      JdbcType jdbcType,
-      Class<? extends TypeHandler<?>> typeHandler,
-      Map<String, String> discriminatorMap) {
-    ResultMapping resultMapping = buildResultMapping(
-        resultType,
-        null,
-        column,
-        javaType,
-        jdbcType,
+  public Discriminator buildDiscriminator(Class<?> resultType, String column, Class<?> javaType,
+      JdbcType jdbcType, Class<? extends TypeHandler<?>> typeHandler, Map<String, String> discriminatorMap) {
+
+        ResultMapping resultMapping = buildResultMapping(resultType, null, column,
+        javaType, jdbcType,
         null,
         null,
         null,
@@ -230,19 +234,22 @@ public class MapperBuilderAssistant extends BaseBuilder {
         null,
         null,
         false);
+
     Map<String, String> namespaceDiscriminatorMap = new HashMap<String, String>();
     for (Map.Entry<String, String> e : discriminatorMap.entrySet()) {
       String resultMap = e.getValue();
       resultMap = applyCurrentNamespace(resultMap, true);
       namespaceDiscriminatorMap.put(e.getKey(), resultMap);
     }
+
     Discriminator.Builder discriminatorBuilder = new Discriminator.Builder(configuration, resultMapping, namespaceDiscriminatorMap);
     return discriminatorBuilder.build();
   }
 
-  public MappedStatement addMappedStatement(
-      String id,
-      SqlSource sqlSource,
+  /**
+   *
+   */
+  public MappedStatement addMappedStatement(String id, SqlSource sqlSource,
       StatementType statementType,
       SqlCommandType sqlCommandType,
       Integer fetchSize,
@@ -262,11 +269,14 @@ public class MapperBuilderAssistant extends BaseBuilder {
       LanguageDriver lang,
       String resultSets) {
     
-    if (unresolvedCacheRef) throw new IncompleteElementException("Cache-ref not yet resolved");
-    
+    if (unresolvedCacheRef) {
+      throw new IncompleteElementException("Cache-ref not yet resolved");
+    }
+
     id = applyCurrentNamespace(id, false);
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
 
+    //
     MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlSource, sqlCommandType);
     statementBuilder.resource(resource);
     statementBuilder.fetchSize(fetchSize);
@@ -511,8 +521,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     String keyColumn,
     String databaseId,
     LanguageDriver lang) {
-    return addMappedStatement(
-      id, sqlSource, statementType, sqlCommandType, fetchSize, timeout, 
+    return addMappedStatement(id, sqlSource, statementType, sqlCommandType, fetchSize, timeout,
       parameterMap, parameterType, resultMap, resultType, resultSetType, 
       flushCache, useCache, resultOrdered, keyGenerator, keyProperty, 
       keyColumn, databaseId, lang, null);

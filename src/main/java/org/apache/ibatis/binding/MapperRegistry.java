@@ -86,7 +86,7 @@ public class MapperRegistry {
         // otherwise the binding may automatically be attempted by the
         // mapper parser. If the type is already known, it won't try.
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
-        // todo
+        // 解析Mapper 上的注解
         parser.parse();
         loadCompleted = true;
       } finally {

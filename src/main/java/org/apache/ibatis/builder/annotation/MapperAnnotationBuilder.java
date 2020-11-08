@@ -92,6 +92,7 @@ public class MapperAnnotationBuilder {
   private final Set<Class<? extends Annotation>> sqlProviderAnnotationTypes = new HashSet<Class<? extends Annotation>>();
 
   private Configuration configuration;
+  //
   private MapperBuilderAssistant assistant;
   // XxxMapper.class
   private Class<?> type;
@@ -122,7 +123,7 @@ public class MapperAnnotationBuilder {
   //
   public void parse() {
     String resource = type.toString();
-
+    //
     if (!configuration.isResourceLoaded(resource)) {
       //
       loadXmlResource();
@@ -175,7 +176,10 @@ public class MapperAnnotationBuilder {
         // ignore, resource is not required
       }
       if (inputStream != null) {
-        XMLMapperBuilder xmlParser = new XMLMapperBuilder(inputStream, assistant.getConfiguration(), xmlResource, configuration.getSqlFragments(), type.getName());
+        //
+        XMLMapperBuilder xmlParser = new XMLMapperBuilder(inputStream,
+                assistant.getConfiguration(), xmlResource,
+                configuration.getSqlFragments(), type.getName());
         xmlParser.parse();
       }
     }
@@ -329,27 +333,15 @@ public class MapperAnnotationBuilder {
         resultMapId = parseResultMap(method);
       }
 
-      assistant.addMappedStatement(
-          mappedStatementId,
-          sqlSource,
-          statementType,
-          sqlCommandType,
-          fetchSize,
-          timeout,
+      //
+      assistant.addMappedStatement(mappedStatementId, sqlSource, statementType, sqlCommandType, fetchSize, timeout,
           null,                             // ParameterMapID
           parameterTypeClass,
           resultMapId,    // ResultMapID
-          getReturnType(method),
-          resultSetType,
-          flushCache,
-          useCache,
+          getReturnType(method), resultSetType, flushCache, useCache,
           false, // TODO issue #577
-          keyGenerator,
-          keyProperty,
-          keyColumn,
-          null,
-          languageDriver,
-          null);
+          keyGenerator, keyProperty, keyColumn,
+          null, languageDriver, null);
     }
   }
   

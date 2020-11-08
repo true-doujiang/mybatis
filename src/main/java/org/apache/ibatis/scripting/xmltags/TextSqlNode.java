@@ -23,32 +23,49 @@ import org.apache.ibatis.type.SimpleTypeRegistry;
  * @author Clinton Begin
  */
 public class TextSqlNode implements SqlNode {
+
+  // sqlMap中的sql
   private String text;
 
+
+  // 构造器
   public TextSqlNode(String text) {
     this.text = text;
   }
-  
+
+
+
+  public boolean apply(DynamicContext context) {
+    //内部类1
+    BindingTokenParser tokenParser = new BindingTokenParser(context);
+    GenericTokenParser genericTokenParser = createParser(tokenParser);
+    String str = genericTokenParser.parse(text);
+    context.appendSql(str);
+    return true;
+  }
+
   public boolean isDynamic() {
+    //内部类2
     DynamicCheckerTokenParser checker = new DynamicCheckerTokenParser();
     GenericTokenParser parser = createParser(checker);
     parser.parse(text);
     return checker.isDynamic();
   }
 
-  public boolean apply(DynamicContext context) {
-    GenericTokenParser parser = createParser(new BindingTokenParser(context));
-    context.appendSql(parser.parse(text));
-    return true;
-  }
   
   private GenericTokenParser createParser(TokenHandler handler) {
-    return new GenericTokenParser("${", "}", handler);
+    GenericTokenParser tokenParser = new GenericTokenParser("${", "}", handler);
+    return tokenParser;
   }
 
+
+  /**
+   * 内部类1
+   */
   private static class BindingTokenParser implements TokenHandler {
 
     private DynamicContext context;
+
 
     public BindingTokenParser(DynamicContext context) {
       this.context = context;
@@ -61,11 +78,16 @@ public class TextSqlNode implements SqlNode {
       } else if (SimpleTypeRegistry.isSimpleType(parameter.getClass())) {
         context.getBindings().put("value", parameter);
       }
+
       Object value = OgnlCache.getValue(content, context.getBindings());
-      return (value == null ? "" : String.valueOf(value)); // issue #274 return "" instead of "null"
+      // issue #274 return "" instead of "null"
+      return (value == null ? "" : String.valueOf(value));
     }
   }
 
+  /**
+   * 内部类2
+   */
   private static class DynamicCheckerTokenParser implements TokenHandler {
     
     private boolean isDynamic;
