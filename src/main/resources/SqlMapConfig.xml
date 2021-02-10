@@ -74,7 +74,7 @@
     </settings>
     -->
 
-
+    <!-- typeAliasRegistry中 默认注册了  JDBC, POOLED ....等别名 -->
     <environments default="development">
        <environment id="development">
            <!-- JDBC / POOLED  都是在 Configuration类中定义的 typeAliasRegistry   -->
@@ -106,19 +106,20 @@
     <!-- 加载 映射文件 3种方式-->
     <mappers>
         <!-- 1、通过resource方法一次加载一个映射文件 -->
-        <!--<mapper resource="com/yhh/mybatis/mapper/UserMapper.xml"/>-->
+        <mapper resource="com/yhh/example/demo/mapper/UserMapper.xml"/>
 
         <!-- 2、通过mapper接口  加载单个映射文件
               遵循一些规范：
               ①需要将mapper接口类名和mapper.xml映射文件名称保持一致，且在一个目录
               ②使用的是mapper代理方法（这个肯定是啊） -->
-        <!--<mapper class="com.yhh.mybatis.mapper.UserMapper"/>-->
+<!--        <mapper class="com.yhh.example.demo.mapper.UserMapper"/>-->
 
         <!-- url也可以       -->
         <!-- <mapper url="" />-->
 
         <!-- 3、指定mapper接口的包名  批量加载mapper  遵循一些规范：同第二种。 -->
-        <package name="com.yhh.example.demo.mapper" />
+<!--        <package name="com.yhh.example.demo.mapper" />-->
+
     </mappers>
 
 </configuration>

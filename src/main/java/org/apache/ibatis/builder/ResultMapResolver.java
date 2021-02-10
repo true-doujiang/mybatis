@@ -26,7 +26,7 @@ import org.apache.ibatis.mapping.ResultMapping;
  */
 public class ResultMapResolver {
 
-
+  //
   private final MapperBuilderAssistant assistant;
 
   private String id;
@@ -36,6 +36,9 @@ public class ResultMapResolver {
   private List<ResultMapping> resultMappings;
   private Boolean autoMapping;
 
+  /**
+   * 构造器
+   */
   public ResultMapResolver(MapperBuilderAssistant assistant, String id, Class<?> type, String extend, Discriminator discriminator, List<ResultMapping> resultMappings, Boolean autoMapping) {
     this.assistant = assistant;
     this.id = id;
@@ -46,6 +49,9 @@ public class ResultMapResolver {
     this.autoMapping = autoMapping;
   }
 
+  /**
+   *
+   */
   public ResultMap resolve() {
     return assistant.addResultMap(this.id, this.type, this.extend, this.discriminator, this.resultMappings, this.autoMapping);
   }

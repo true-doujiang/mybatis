@@ -112,6 +112,7 @@ public class Configuration {
   protected String logPrefix;
   protected Class <? extends Log> logImpl;
 
+  // 一级缓存级别
   protected LocalCacheScope localCacheScope = LocalCacheScope.SESSION;
 
   protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
@@ -130,6 +131,7 @@ public class Configuration {
   // todo
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
+
   // mapper接口注册器  底层是个HashMap   ******很重要******
   protected MapperRegistry mapperRegistry = new MapperRegistry(this);
 
@@ -159,17 +161,22 @@ public class Configuration {
 
   /**
    * todo 什么时候初始化的
+   * StrictMap 内部类
    */
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection");
 
   protected final Map<String, Cache> caches = new StrictMap<Cache>("Caches collection");
+
   protected final Map<String, ResultMap> resultMaps = new StrictMap<ResultMap>("Result Maps collection");
 
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<ParameterMap>("Parameter Maps collection");
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<KeyGenerator>("Key Generators collection");
 
-  protected final Set<String> loadedResources = new HashSet<String>();
   protected final Map<String, XNode> sqlFragments = new StrictMap<XNode>("XML fragments parsed from previous mappers");
+
+  // 解析 <mapper> 标签用的
+  protected final Set<String> loadedResources = new HashSet<String>();
+
 
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<XMLStatementBuilder>();
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<CacheRefResolver>();
@@ -223,6 +230,7 @@ public class Configuration {
     typeAliasRegistry.registerAlias("STDOUT_LOGGING", StdOutImpl.class);
     typeAliasRegistry.registerAlias("NO_LOGGING", NoLoggingImpl.class);
 
+    //
     typeAliasRegistry.registerAlias("CGLIB", CglibProxyFactory.class);
     typeAliasRegistry.registerAlias("JAVASSIST", JavassistProxyFactory.class);
 
@@ -508,8 +516,9 @@ public class Configuration {
   public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject,
                                               RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
 
-    StatementHandler statementHandler =
-            new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
+    StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement,
+            parameterObject, rowBounds, resultHandler, boundSql);
+
     // 绑定拦截器
     statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
     return statementHandler;
@@ -629,6 +638,10 @@ public class Configuration {
     return parameterMaps.containsKey(id);
   }
 
+  /**
+   *
+   * @param ms
+   */
   public void addMappedStatement(MappedStatement ms) {
     mappedStatements.put(ms.getId(), ms);
   }
@@ -806,9 +819,14 @@ public class Configuration {
     }
   }
 
+  /**
+   *
+   * @param <V>
+   */
   protected static class StrictMap<V> extends HashMap<String, V> {
 
     private static final long serialVersionUID = -4950446264854982944L;
+    // 标识
     private String name;
 
     public StrictMap(String name, int initialCapacity, float loadFactor) {

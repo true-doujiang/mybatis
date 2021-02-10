@@ -31,6 +31,10 @@ public class FifoCache implements Cache {
   private LinkedList<Object> keyList;
   private int size;
 
+  /**
+   * 构造器
+   * @param delegate
+   */
   public FifoCache(Cache delegate) {
     this.delegate = delegate;
     this.keyList = new LinkedList<Object>();

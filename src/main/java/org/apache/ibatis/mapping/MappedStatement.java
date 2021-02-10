@@ -38,10 +38,13 @@ public final class MappedStatement {
 
   private String id;
   private Integer fetchSize;
+
   private Integer timeout;
+
   // jdbc Statement 类型
   private StatementType statementType;
   private ResultSetType resultSetType;
+
   // 动态sql DynamicSqlSource
   private SqlSource sqlSource;
   // 缓存
@@ -49,6 +52,7 @@ public final class MappedStatement {
 
   private ParameterMap parameterMap;
   private List<ResultMap> resultMaps;
+
   private boolean flushCacheRequired;
   private boolean useCache;
   private boolean resultOrdered;
@@ -63,19 +67,30 @@ public final class MappedStatement {
   private LanguageDriver lang;
   private String[] resultSets;
 
+
+  /**
+   * 构造器 私有化
+   */
   private MappedStatement() {
     // constructor disabled
   }
 
 
   /**
-   *
+   * 内部类
    */
   public static class Builder {
 
+    //
     private MappedStatement mappedStatement = new MappedStatement();
 
-
+    /**
+     *
+     * @param configuration
+     * @param id
+     * @param sqlSource
+     * @param sqlCommandType
+     */
     public Builder(Configuration configuration, String id, SqlSource sqlSource, SqlCommandType sqlCommandType) {
       mappedStatement.configuration = configuration;
       mappedStatement.id = id;
@@ -192,6 +207,7 @@ public final class MappedStatement {
       assert mappedStatement.id != null;
       assert mappedStatement.sqlSource != null;
       assert mappedStatement.lang != null;
+
       mappedStatement.resultMaps = Collections.unmodifiableList(mappedStatement.resultMaps);
       return mappedStatement;
     }
@@ -296,6 +312,7 @@ public final class MappedStatement {
    * @return
    */
   public BoundSql getBoundSql(Object parameterObject) {
+
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
 
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();

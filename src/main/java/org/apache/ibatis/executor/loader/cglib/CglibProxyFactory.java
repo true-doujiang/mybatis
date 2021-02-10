@@ -49,6 +49,9 @@ public class CglibProxyFactory implements ProxyFactory {
   private static final String FINALIZE_METHOD = "finalize";
   private static final String WRITE_REPLACE_METHOD = "writeReplace";
 
+  /**
+   * 构造器
+   */
   public CglibProxyFactory() {
     try {
       Resources.classForName("net.sf.cglib.proxy.Enhancer");
@@ -92,6 +95,9 @@ public class CglibProxyFactory implements ProxyFactory {
     return enhanced;
   }
 
+  /**
+   *
+   */
   private static class EnhancedResultObjectProxyImpl implements MethodInterceptor {
 
     private Class<?> type;
@@ -157,6 +163,9 @@ public class CglibProxyFactory implements ProxyFactory {
     }
   }
 
+  /**
+   *
+   */
   private static class EnhancedDeserializationProxyImpl extends AbstractEnhancedDeserializationProxy implements MethodInterceptor {
 
     private EnhancedDeserializationProxyImpl(Class<?> type, Map<String, ResultLoaderMap.LoadPair> unloadedProperties, ObjectFactory objectFactory,

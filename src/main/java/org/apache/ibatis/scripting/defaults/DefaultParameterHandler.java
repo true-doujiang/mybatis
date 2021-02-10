@@ -37,13 +37,21 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  */
 public class DefaultParameterHandler implements ParameterHandler {
 
+  //
   private final TypeHandlerRegistry typeHandlerRegistry;
-
+  //
   private final MappedStatement mappedStatement;
   private final Object parameterObject;
   private BoundSql boundSql;
   private Configuration configuration;
 
+
+  /**
+   * 构造器
+   * @param mappedStatement
+   * @param parameterObject
+   * @param boundSql
+   */
   public DefaultParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
     this.mappedStatement = mappedStatement;
     this.configuration = mappedStatement.getConfiguration();
@@ -56,6 +64,11 @@ public class DefaultParameterHandler implements ParameterHandler {
     return parameterObject;
   }
 
+  /**
+   *
+   * @param ps
+   * @throws SQLException
+   */
   public void setParameters(PreparedStatement ps) throws SQLException {
     ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();

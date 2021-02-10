@@ -40,7 +40,7 @@ public class XNode {
   private Properties attributes;
 
   private Properties variables;
-  //
+  // 把xpath传到了Node中
   private XPathParser xpathParser;
 
   /**

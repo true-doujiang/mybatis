@@ -32,11 +32,17 @@ public class DynamicSqlSource implements SqlSource {
   private SqlNode rootSqlNode;
 
 
-  // 构造器
+  /**
+   * 构造器
+   * @param configuration
+   * @param rootSqlNode
+   */
   public DynamicSqlSource(Configuration configuration, SqlNode rootSqlNode) {
     this.configuration = configuration;
     this.rootSqlNode = rootSqlNode;
   }
+
+
 
   public BoundSql getBoundSql(Object parameterObject) {
     // 动态参数

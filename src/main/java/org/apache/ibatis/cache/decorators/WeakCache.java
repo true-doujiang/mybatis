@@ -29,11 +29,18 @@ import org.apache.ibatis.cache.Cache;
  * @author Clinton Begin
  */
 public class WeakCache implements Cache {
+
   private final LinkedList<Object> hardLinksToAvoidGarbageCollection;
   private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
+  //
   private final Cache delegate;
   private int numberOfHardLinks;
 
+  /**
+   * 构造器
+   *
+   * @param delegate
+   */
   public WeakCache(Cache delegate) {
     this.delegate = delegate;
     this.numberOfHardLinks = 256;

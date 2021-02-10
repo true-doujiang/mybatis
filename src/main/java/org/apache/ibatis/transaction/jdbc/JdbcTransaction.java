@@ -50,7 +50,13 @@ public class JdbcTransaction implements Transaction {
   protected boolean autoCommmit;
 
 
-  // 构造器
+  /**
+   * 构造器
+   *
+   * @param ds
+   * @param desiredLevel
+   * @param desiredAutoCommit
+   */
   public JdbcTransaction(DataSource ds, TransactionIsolationLevel desiredLevel, boolean desiredAutoCommit) {
     dataSource = ds;
     level = desiredLevel;

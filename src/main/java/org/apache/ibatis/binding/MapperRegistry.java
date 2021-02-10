@@ -37,11 +37,16 @@ public class MapperRegistry {
   //
   private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<Class<?>, MapperProxyFactory<?>>();
 
+  /**
+   * 构造器
+   * @param config
+   */
   public MapperRegistry(Configuration config) {
     this.config = config;
   }
 
   /**
+   * 动态代理生产Mapper实现类
    *
    * @param type
    * @param sqlSession

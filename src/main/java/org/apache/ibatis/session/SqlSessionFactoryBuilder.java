@@ -23,6 +23,8 @@ import java.util.Properties;
 import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.exceptions.ExceptionFactory;
 import org.apache.ibatis.executor.ErrorContext;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 
 /*
@@ -33,6 +35,11 @@ import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
  * @author Clinton Begin
  */
 public class SqlSessionFactoryBuilder {
+
+
+  private static final Log log = LogFactory.getLog(SqlSessionFactoryBuilder.class);
+
+
 
   public SqlSessionFactory build(Reader reader) {
     return build(reader, null, null);
@@ -92,11 +99,15 @@ public class SqlSessionFactoryBuilder {
     try {
       // XMLConfigBuilder extends BaseBuilder{configuration}
       XMLConfigBuilder xmlConfigBuilder = new XMLConfigBuilder(inputStream, environment, properties);
+      log.debug("build SqlSessionFactory xmlConfigBuilder: " + xmlConfigBuilder);
+
       // 解析mybatis全局配置文件、 初始换框架的  typeHandler、interceptor、mapper代理..... 默认参数啊
       Configuration config = xmlConfigBuilder.parse();
 
       // 创建 DefaultSqlSessionFactory
-      return build(config);
+      // return build(config);
+
+      return new DefaultSqlSessionFactory(config);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error building SqlSession.", e);
     } finally {

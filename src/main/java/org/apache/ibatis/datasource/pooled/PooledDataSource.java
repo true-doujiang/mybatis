@@ -59,8 +59,9 @@ public class PooledDataSource implements DataSource {
   private int expectedConnectionTypeCode;
 
 
-
-  // 构造器
+  /**
+   * 构造器
+   */
   public PooledDataSource() {
     dataSource = new UnpooledDataSource();
   }

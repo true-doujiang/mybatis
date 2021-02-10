@@ -36,7 +36,15 @@ import org.apache.ibatis.session.RowBounds;
 public class PreparedStatementHandler extends BaseStatementHandler {
 
 
-  // 构造器
+  /**
+   * 构造器
+   * @param executor
+   * @param mappedStatement
+   * @param parameter
+   * @param rowBounds
+   * @param resultHandler
+   * @param boundSql
+   */
   public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }

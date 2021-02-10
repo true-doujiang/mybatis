@@ -44,12 +44,16 @@ import org.xml.sax.SAXParseException;
  */
 public class XPathParser {
 
-  // w3c dom
+  // w3c dom mybatis-comfig.xml文档
   private Document document;
+
   private boolean validation;
   private EntityResolver entityResolver;
-  //
+
+  // SqlSessionFactoryBuilder 中一路传过来的，可能是null
   private Properties variables;
+
+  // jdk javax.xml.xpath.XPath
   private XPath xpath;
 
   public XPathParser(String xml) {

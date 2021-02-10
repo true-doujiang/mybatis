@@ -33,8 +33,10 @@ public class MapperProxyFactory<T> {
   private Map<Method, MapperMethod> methodCache = new ConcurrentHashMap<Method, MapperMethod>();
 
 
-
-  // 构造器
+  /**
+   * 构造器
+   * @param mapperInterface
+   */
   public MapperProxyFactory(Class<T> mapperInterface) {
     this.mapperInterface = mapperInterface;
   }

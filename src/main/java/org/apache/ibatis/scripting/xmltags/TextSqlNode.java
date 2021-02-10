@@ -28,7 +28,10 @@ public class TextSqlNode implements SqlNode {
   private String text;
 
 
-  // 构造器
+  /**
+   * 构造器
+   * @param text
+   */
   public TextSqlNode(String text) {
     this.text = text;
   }

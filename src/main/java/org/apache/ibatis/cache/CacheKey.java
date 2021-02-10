@@ -38,6 +38,9 @@ public class CacheKey implements Cloneable, Serializable {
   private int count;
   private List<Object> updateList;
 
+  /**
+   * 构造器
+   */
   public CacheKey() {
     this.hashcode = DEFAULT_HASHCODE;
     this.multiplier = DEFAULT_MULTIPLYER;

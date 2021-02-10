@@ -48,6 +48,9 @@ public class JavassistProxyFactory implements org.apache.ibatis.executor.loader.
   private static final String FINALIZE_METHOD = "finalize";
   private static final String WRITE_REPLACE_METHOD = "writeReplace";
 
+  /**
+   * 构造器
+   */
   public JavassistProxyFactory() {
     try {
       Resources.classForName("javassist.util.proxy.ProxyFactory");
@@ -94,6 +97,9 @@ public class JavassistProxyFactory implements org.apache.ibatis.executor.loader.
     return enhanced;
   }
 
+  /**
+   *
+   */
   private static class EnhancedResultObjectProxyImpl implements MethodHandler {
 
     private Class<?> type;
@@ -159,6 +165,9 @@ public class JavassistProxyFactory implements org.apache.ibatis.executor.loader.
     }
   }
 
+  /**
+   *
+   */
   private static class EnhancedDeserializationProxyImpl extends AbstractEnhancedDeserializationProxy implements MethodHandler {
 
     private EnhancedDeserializationProxyImpl(Class<?> type, Map<String, ResultLoaderMap.LoadPair> unloadedProperties, ObjectFactory objectFactory,

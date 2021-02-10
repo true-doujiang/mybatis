@@ -31,9 +31,14 @@ public class PerpetualCache implements Cache {
 
   private Map<Object, Object> cache = new HashMap<Object, Object>();
 
+  /**
+   * 构造器
+   * @param id
+   */
   public PerpetualCache(String id) {
     this.id = id;
   }
+
 
   public String getId() {
     return id;

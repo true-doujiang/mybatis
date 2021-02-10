@@ -17,6 +17,7 @@ package org.apache.ibatis.builder.xml;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -27,6 +28,8 @@ import org.apache.ibatis.datasource.DataSourceFactory;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.loader.ProxyFactory;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.DatabaseIdProvider;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.parsing.XNode;
@@ -40,6 +43,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.LocalCacheScope;
 import org.apache.ibatis.transaction.TransactionFactory;
+import org.apache.ibatis.transaction.jdbc.JdbcTransaction;
 import org.apache.ibatis.type.JdbcType;
 
 /**
@@ -49,16 +53,21 @@ import org.apache.ibatis.type.JdbcType;
  */
 public class XMLConfigBuilder extends BaseBuilder {
 
+
+  private static final Log log = LogFactory.getLog(XMLConfigBuilder.class);
+
   // parse() 后 置位true
   private boolean parsed;
-  // 构造器中初始化  xml解析器
+  // 构造器中初始化  xml解析器  使用xPath解析
   private XPathParser parser;
   //数据库配置 标识
   private String environment;
 
 
-
-  //构造器
+  /**
+   * 构造器
+   * @param reader
+   */
   public XMLConfigBuilder(Reader reader) {
     this(reader, null, null);
   }
@@ -92,6 +101,7 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   /**
+   * 私有构造器
    *
    * @param parser
    * @param environment
@@ -101,6 +111,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     // 创建一个 Configuration   默认会带恨到参数的
     super(new Configuration());
     ErrorContext.instance().resource("SQL Mapper Configuration");
+
     this.configuration.setVariables(props);
     this.parsed = false;
     this.environment = environment;
@@ -119,9 +130,12 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
     parsed = true;
     XNode xNode = parser.evalNode("/configuration");
+    log.debug("start parse Configuration xNode: " + xNode);
+
     // 解析全局配置文件中的 每个大标签
     // 如：properties  typeAliases  settings environments mappers
     parseConfiguration(xNode);
+
     return configuration;
   }
 
@@ -133,32 +147,44 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void parseConfiguration(XNode root) {
     try {
 
-      propertiesElement(root.evalNode("properties")); //issue #117 read properties first
+      XNode propertiesNode = root.evalNode("properties");
+      propertiesElement(propertiesNode); //issue #117 read properties first
 
       // 解析别名配置
-      typeAliasesElement(root.evalNode("typeAliases"));
+      XNode typeAliasesNode = root.evalNode("typeAliases");
+      typeAliasesElement(typeAliasesNode);
+
       // 解析拦截器配置
-      pluginElement(root.evalNode("plugins"));
+      XNode pluginsNode = root.evalNode("plugins");
+      pluginElement(pluginsNode);
 
       //todo
-      objectFactoryElement(root.evalNode("objectFactory"));
+      XNode objectFactoryNode = root.evalNode("objectFactory");
+      objectFactoryElement(objectFactoryNode);
+
       //todo
-      objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
+      XNode objectWrapperFactoryNode = root.evalNode("objectWrapperFactory");
+      objectWrapperFactoryElement(objectWrapperFactoryNode);
 
       // settings全局参数配置
-      settingsElement(root.evalNode("settings"));
+      XNode settingsNode = root.evalNode("settings");
+      settingsElement(settingsNode);
 
       //
       // read it after objectFactory and objectWrapperFactory issue #631
-      environmentsElement(root.evalNode("environments"));
+      XNode environmentsNode = root.evalNode("environments");
+      environmentsElement(environmentsNode);
 
       //todo
-      databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+      XNode databaseIdProviderNode = root.evalNode("databaseIdProvider");
+      databaseIdProviderElement(databaseIdProviderNode);
 
-      typeHandlerElement(root.evalNode("typeHandlers"));
+      XNode typeHandlersNode = root.evalNode("typeHandlers");
+      typeHandlerElement(typeHandlersNode);
 
       // 解析mapper接口
-      mapperElement(root.evalNode("mappers"));
+      XNode mappersNode = root.evalNode("mappers");
+      mapperElement(mappersNode);
 
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -255,7 +281,7 @@ public class XMLConfigBuilder extends BaseBuilder {
         defaults.putAll(vars);
       }
 
-      // todo
+      //
       parser.setVariables(defaults);
       // 数据库地址的 Properties文件
       configuration.setVariables(defaults);
@@ -427,25 +453,32 @@ public class XMLConfigBuilder extends BaseBuilder {
    */
   private void mapperElement(XNode parent) throws Exception {
     if (parent != null) {
+
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
           String mapperPackage = child.getStringAttribute("name");
+          // 注册mapper
           configuration.addMappers(mapperPackage);
         } else {
+
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
 
           if (resource != null && url == null && mapperClass == null) {
             ErrorContext.instance().resource(resource);
+
             InputStream inputStream = Resources.getResourceAsStream(resource);
             // 解析 mapper.xml
-            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
+            Map<String, XNode> sqlFragments = configuration.getSqlFragments();
+            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, sqlFragments);
             mapperParser.parse();
           } else if (resource == null && url != null && mapperClass == null) {
             ErrorContext.instance().resource(url);
             InputStream inputStream = Resources.getUrlAsStream(url);
-            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
+            // 解析 mapper.xml
+            Map<String, XNode> sqlFragments = configuration.getSqlFragments();
+            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, sqlFragments);
             mapperParser.parse();
           } else if (resource == null && url == null && mapperClass != null) {
             Class<?> mapperInterface = Resources.classForName(mapperClass);
