@@ -35,15 +35,22 @@ import org.apache.ibatis.session.Configuration;
  */
 public class BoundSql {
 
+  // select * from users where id = ?
   private String sql;
+  //
   private List<ParameterMapping> parameterMappings;
+
   private Object parameterObject;
+
   private Map<String, Object> additionalParameters;
   private MetaObject metaParameters;
 
 
-  //构造器
-  public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, Object parameterObject) {
+  /**
+   * Default constructor
+   */
+  public BoundSql(Configuration configuration, String sql,
+                  List<ParameterMapping> parameterMappings, Object parameterObject) {
     this.sql = sql;
     this.parameterMappings = parameterMappings;
     this.parameterObject = parameterObject;

@@ -30,6 +30,8 @@ import org.apache.ibatis.session.RowBounds;
 
 /**
  * @author Clinton Begin
+ *
+ * 加了这一层没啥意义
  */
 public class RoutingStatementHandler implements StatementHandler {
 
@@ -37,7 +39,9 @@ public class RoutingStatementHandler implements StatementHandler {
   private final StatementHandler delegate;
 
 
-  // 构造器
+  /**
+   * 构造器
+   */
   public RoutingStatementHandler(Executor executor, MappedStatement ms, Object parameter, RowBounds rowBounds,
                                  ResultHandler resultHandler, BoundSql boundSql) {
 
@@ -46,6 +50,7 @@ public class RoutingStatementHandler implements StatementHandler {
         delegate = new SimpleStatementHandler(executor, ms, parameter, rowBounds, resultHandler, boundSql);
         break;
       case PREPARED:
+        // 99%的情况都是我
         delegate = new PreparedStatementHandler(executor, ms, parameter, rowBounds, resultHandler, boundSql);
         break;
       case CALLABLE:
@@ -57,30 +62,40 @@ public class RoutingStatementHandler implements StatementHandler {
 
   }
 
+  /**
+   * 委托 真正的 mybatis StatementHandler to create jdbc Statement
+   */
+  @Override
   public Statement prepare(Connection connection) throws SQLException {
     return delegate.prepare(connection);
   }
 
+  @Override
   public void parameterize(Statement statement) throws SQLException {
     delegate.parameterize(statement);
   }
 
+  @Override
   public void batch(Statement statement) throws SQLException {
     delegate.batch(statement);
   }
 
+  @Override
   public int update(Statement statement) throws SQLException {
     return delegate.update(statement);
   }
 
+  @Override
   public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     return delegate.<E>query(statement, resultHandler);
   }
 
+  @Override
   public BoundSql getBoundSql() {
     return delegate.getBoundSql();
   }
 
+  @Override
   public ParameterHandler getParameterHandler() {
     return delegate.getParameterHandler();
   }

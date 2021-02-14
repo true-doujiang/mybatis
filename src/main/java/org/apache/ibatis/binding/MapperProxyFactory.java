@@ -24,10 +24,12 @@ import org.apache.ibatis.session.SqlSession;
 
 /**
  * @author Lasse Voss
+ *
+ * Mapper代理工厂
  */
 public class MapperProxyFactory<T> {
 
-  // XxxMapper.class  target 被代理类
+  // xxxMapper.class  target 被代理类
   private final Class<T> mapperInterface;
   //
   private Map<Method, MapperMethod> methodCache = new ConcurrentHashMap<Method, MapperMethod>();
@@ -35,27 +37,16 @@ public class MapperProxyFactory<T> {
 
   /**
    * 构造器
-   * @param mapperInterface
    */
   public MapperProxyFactory(Class<T> mapperInterface) {
     this.mapperInterface = mapperInterface;
   }
 
-  public Class<T> getMapperInterface() {
-    return mapperInterface;
-  }
-
-  public Map<Method, MapperMethod> getMethodCache() {
-    return methodCache;
-  }
-
-
   /**
-   *
-   * @param sqlSession
-   * @return
+   * Mapper代理工厂 生产代理类
    */
   public T newInstance(SqlSession sqlSession) {
+    // jdk事务处理器
     final MapperProxy<T> mapperProxy = new MapperProxy<T>(sqlSession, mapperInterface, methodCache);
     return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
     //return newInstance(mapperProxy);
@@ -68,5 +59,13 @@ public class MapperProxyFactory<T> {
 //    return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
 //  }
 
+
+  public Class<T> getMapperInterface() {
+    return mapperInterface;
+  }
+
+  public Map<Method, MapperMethod> getMethodCache() {
+    return methodCache;
+  }
 
 }

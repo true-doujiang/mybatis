@@ -57,6 +57,9 @@ public class UnpooledDataSource implements DataSource {
     }
   }
 
+  /**
+   * 默认构造器
+   */
   public UnpooledDataSource() {
   }
 

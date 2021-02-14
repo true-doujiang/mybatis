@@ -56,6 +56,7 @@ public class TypeHandlerTest {
     SqlSession sqlSession = sqlSessionFactory.openSession();
     try {
       Mapper mapper = sqlSession.getMapper(Mapper.class);
+      //
       User user = mapper.getUser(1);
       Assert.assertEquals("User1", user.getName());
       Assert.assertEquals("Carmel", user.getCity());

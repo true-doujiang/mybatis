@@ -37,35 +37,44 @@ import java.util.*;
 public class MapperMethod {
 
   // 2个内部类
+
+  // 1.xxxMapper中的方法全限定名
+  // 2.方法类型 insert  update  select delete
   private final SqlCommand command;
+  //
   private final MethodSignature method;
 
 
-
-  //构造器
+  /**
+   * 构造器
+   */
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
     this.command = new SqlCommand(config, mapperInterface, method);
     this.method = new MethodSignature(config, method);
   }
 
   /**
-   *
-   * @param sqlSession
-   * @param args
-   * @return
+   * MapperProxy的invoke方法调用
    */
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
 
     if (SqlCommandType.INSERT == command.getType()) {
       Object param = method.convertArgsToSqlCommandParam(args);
-      result = rowCountResult(sqlSession.insert(command.getName(), param));
+      int count = sqlSession.insert(command.getName(), param);
+      result = rowCountResult(count);
+
     } else if (SqlCommandType.UPDATE == command.getType()) {
       Object param = method.convertArgsToSqlCommandParam(args);
-      result = rowCountResult(sqlSession.update(command.getName(), param));
+      int count = sqlSession.update(command.getName(), param);
+      result = rowCountResult(count);
+
     } else if (SqlCommandType.DELETE == command.getType()) {
+
       Object param = method.convertArgsToSqlCommandParam(args);
-      result = rowCountResult(sqlSession.delete(command.getName(), param));
+      int count = sqlSession.delete(command.getName(), param);
+      result = rowCountResult(count);
+
     } else if (SqlCommandType.SELECT == command.getType()) {
       // 查询
       if (method.returnsVoid() && method.hasResultHandler()) {
@@ -78,6 +87,7 @@ public class MapperMethod {
         result = executeForMap(sqlSession, args);
       } else {
         Object param = method.convertArgsToSqlCommandParam(args);
+        //
         result = sqlSession.selectOne(command.getName(), param);
       }
     } else {
@@ -115,7 +125,9 @@ public class MapperMethod {
           + " needs either a @ResultMap annotation, a @ResultType annotation," 
           + " or a resultType attribute in XML so a ResultHandler can be used as a parameter.");
     }
+
     Object param = method.convertArgsToSqlCommandParam(args);
+
     if (method.hasRowBounds()) {
       RowBounds rowBounds = method.extractRowBounds(args);
       sqlSession.select(command.getName(), param, rowBounds, method.extractResultHandler(args));
@@ -127,9 +139,6 @@ public class MapperMethod {
   /**
    *
    * @param sqlSession
-   * @param args
-   * @param <E>
-   * @return
    */
   private <E> Object executeForMany(SqlSession sqlSession, Object[] args) {
     List<E> result;
@@ -184,7 +193,6 @@ public class MapperMethod {
 
   /**
    *
-   * @param <V>
    */
   public static class ParamMap<V> extends HashMap<String, V> {
 
@@ -201,18 +209,23 @@ public class MapperMethod {
   }
 
   /**
-   *
-   *
+   * 内部类一
    */
   public static class SqlCommand {
 
-    // XxxMapper.methodName
+    // xxxMapper.methodName
     private final String name;
     // insert , delete , select , update
     private final SqlCommandType type;
 
-    public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) throws BindingException {
+    /**
+     *
+     */
+    public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method)
+                                                                 throws BindingException {
+
       String statementName = mapperInterface.getName() + "." + method.getName();
+
       MappedStatement ms = null;
       if (configuration.hasStatement(statementName)) {
         ms = configuration.getMappedStatement(statementName);
@@ -222,11 +235,14 @@ public class MapperMethod {
           ms = configuration.getMappedStatement(parentStatementName);
         }
       }
+
       if (ms == null) {
         throw new BindingException("Invalid bound statement (not found): " + statementName);
       }
+
       name = ms.getId();
       type = ms.getSqlCommandType();
+
       if (type == SqlCommandType.UNKNOWN) {
         throw new BindingException("Unknown execution method for: " + name);
       }
@@ -242,6 +258,7 @@ public class MapperMethod {
   }
 
   /**
+   * 内部类二
    * 记录 返回值类型、返回多个还是一个、
    */
   public static class MethodSignature {
@@ -257,6 +274,9 @@ public class MapperMethod {
     private final SortedMap<Integer, String> params;
     private final boolean hasNamedParameters;
 
+    /**
+     * 构造器
+     */
     public MethodSignature(Configuration configuration, Method method) throws BindingException {
       this.returnType = method.getReturnType();
       this.returnsVoid = void.class.equals(this.returnType);

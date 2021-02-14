@@ -65,10 +65,14 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private final Executor executor;
   private final Configuration configuration;
   private final MappedStatement mappedStatement;
+
   private final RowBounds rowBounds;
+
   private final ParameterHandler parameterHandler;
   private final ResultHandler resultHandler;
+
   private final BoundSql boundSql;
+
   private final TypeHandlerRegistry typeHandlerRegistry;
   private final ObjectFactory objectFactory;
 
@@ -81,14 +85,18 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private final Map<String, ResultMapping> nextResultMaps = new HashMap<String, ResultMapping>();
   private final Map<CacheKey, List<PendingRelation>> pendingRelations = new HashMap<CacheKey, List<PendingRelation>>();
 
-  // 内部类
+  /**
+   * 内部类
+   */
   private static class PendingRelation {
     public MetaObject metaObject;
     public ResultMapping propertyMapping;
   }
 
 
-  // 构造器
+  /**
+   * 构造器
+   */
   public DefaultResultSetHandler(Executor executor, MappedStatement mappedStatement, ParameterHandler parameterHandler,
                                  ResultHandler resultHandler, BoundSql boundSql, RowBounds rowBounds) {
     this.executor = executor;

@@ -70,6 +70,7 @@ public class XMLStatementBuilder extends BaseBuilder {
    * 2.创建对应的MappedStatement 并添加到Configuration
    */
   public void parseStatementNode() {
+
     String id = context.getStringAttribute("id");
     String databaseId = context.getStringAttribute("databaseId");
 
@@ -132,6 +133,9 @@ public class XMLStatementBuilder extends BaseBuilder {
         keyGenerator, keyProperty, keyColumn, databaseId, langDriver, resultSets);
   }
 
+
+
+
   private void processSelectKeyNodes(String id, Class<?> parameterTypeClass, LanguageDriver langDriver) {
     List<XNode> selectKeyNodes = context.evalNodes("selectKey");
     if (configuration.getDatabaseId() != null) {
@@ -153,11 +157,6 @@ public class XMLStatementBuilder extends BaseBuilder {
 
   /**
    *
-   * @param id
-   * @param nodeToHandle
-   * @param parameterTypeClass
-   * @param langDriver
-   * @param databaseId
    */
   private void parseSelectKeyNode(String id, XNode nodeToHandle, Class<?> parameterTypeClass, LanguageDriver langDriver, String databaseId) {
     String resultType = nodeToHandle.getStringAttribute("resultType");

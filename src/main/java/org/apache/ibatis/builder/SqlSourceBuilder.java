@@ -35,8 +35,10 @@ public class SqlSourceBuilder extends BaseBuilder {
 
   private static final String parameterProperties = "javaType,jdbcType,mode,numericScale,resultMap,typeHandler,jdbcTypeName";
 
-  
-  //构造器
+
+  /**
+   * 构造器
+   */
   public SqlSourceBuilder(Configuration configuration) {
     super(configuration);
   }
@@ -57,7 +59,7 @@ public class SqlSourceBuilder extends BaseBuilder {
 
 
   /**
-   *
+   * 内部类
    */
   private static class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandler {
 
@@ -65,7 +67,10 @@ public class SqlSourceBuilder extends BaseBuilder {
     private Class<?> parameterType;
     private MetaObject metaParameters;
 
-    // 构造器
+
+    /**
+     * 构造器
+     */
     public ParameterMappingTokenHandler(Configuration configuration, Class<?> parameterType, Map<String, Object> additionalParameters) {
       super(configuration);
       this.parameterType = parameterType;

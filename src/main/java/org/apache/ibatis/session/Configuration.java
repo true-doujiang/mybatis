@@ -80,6 +80,7 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.scripting.LanguageDriverRegistry;
 import org.apache.ibatis.scripting.defaults.RawLanguageDriver;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
+import org.apache.ibatis.session.defaults.DefaultSqlSession;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
@@ -94,6 +95,10 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  * 全局配置文件映射
  */
 public class Configuration {
+
+
+  private static final Log log = LogFactory.getLog(DefaultSqlSession.class);
+
 
   // 数据库地址、事务处理器 等信息
   protected Environment environment;
@@ -132,7 +137,9 @@ public class Configuration {
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
-  // mapper接口注册器  底层是个HashMap   ******很重要******
+  /**
+   * mapper注册器  底层是个HashMap   ******很重要******
+   */
   protected MapperRegistry mapperRegistry = new MapperRegistry(this);
 
   protected boolean lazyLoadingEnabled = false;
@@ -160,7 +167,7 @@ public class Configuration {
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
   /**
-   * todo 什么时候初始化的
+   *
    * StrictMap 内部类
    */
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection");
@@ -191,7 +198,9 @@ public class Configuration {
   protected final Map<String, String> cacheRefMap = new HashMap<String, String>();
 
 
-
+  /**
+   * 构造器
+   */
   public Configuration(Environment environment) {
     this();
     this.environment = environment;
@@ -496,33 +505,52 @@ public class Configuration {
     return MetaObject.forObject(object, objectFactory, objectWrapperFactory);
   }
 
-  public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
-    ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
+  /**
+   * BaseStatementHandler 构造器中调用
+   */
+  public ParameterHandler newParameterHandler(MappedStatement mappedStatement,
+                                              Object parameterObject, BoundSql boundSql) {
+
+    LanguageDriver lang = mappedStatement.getLang();
+    ParameterHandler parameterHandler = lang.createParameterHandler(mappedStatement, parameterObject, boundSql);
+
+    // 绑定拦截器
     parameterHandler = (ParameterHandler) interceptorChain.pluginAll(parameterHandler);
+
     return parameterHandler;
   }
 
-  public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler,
-      ResultHandler resultHandler, BoundSql boundSql) {
-    ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds);
+  /**
+   * BaseStatementHandler 构造器中调用
+   */
+  public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement,
+    RowBounds rowBounds, ParameterHandler parameterHandler, ResultHandler resultHandler, BoundSql boundSql) {
+
+    //
+    ResultSetHandler resultSetHandler = new DefaultResultSetHandler(
+            executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds);
+
+    // 绑定拦截器
     resultSetHandler = (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler);
+
     return resultSetHandler;
   }
 
 
   /**
-   *
+   * 创建 StatementHandler
    */
-  public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject,
-                                              RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+  public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement,
+                Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
 
-    StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement,
-            parameterObject, rowBounds, resultHandler, boundSql);
+    StatementHandler statementHandler = new RoutingStatementHandler(
+            executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
 
-    // 绑定拦截器
+    // 绑定拦截器 创建executor的时候同样绑定拦截器
     statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
     return statementHandler;
   }
+
 
   public Executor newExecutor(Transaction transaction) {
     return newExecutor(transaction, defaultExecutorType);
@@ -530,9 +558,6 @@ public class Configuration {
 
   /**
    * 创建Executor 并绑定拦截器
-   * @param transaction
-   * @param executorType
-   * @return
    */
   public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
     executorType = executorType == null ? defaultExecutorType : executorType;
@@ -541,17 +566,22 @@ public class Configuration {
     Executor executor;
 
     if (ExecutorType.BATCH == executorType) {
+      //
       executor = new BatchExecutor(this, transaction);
     } else if (ExecutorType.REUSE == executorType) {
+      //
       executor = new ReuseExecutor(this, transaction);
     } else {
+      //
       executor = new SimpleExecutor(this, transaction);
     }
 
+    // 可以设置关闭cache
     if (cacheEnabled) {
       executor = new CachingExecutor(executor);
     }
-    //
+
+    // 绑定拦截器
     executor = (Executor) interceptorChain.pluginAll(executor);
     return executor;
   }
@@ -639,11 +669,12 @@ public class Configuration {
   }
 
   /**
-   *
-   * @param ms
+   * 添加ms
    */
   public void addMappedStatement(MappedStatement ms) {
-    mappedStatements.put(ms.getId(), ms);
+    String id = ms.getId();
+    log.debug("Configuration addMappedStatement id: " + id);
+    mappedStatements.put(id, ms);
   }
 
   public Collection<String> getMappedStatementNames() {
@@ -820,8 +851,7 @@ public class Configuration {
   }
 
   /**
-   *
-   * @param <V>
+   * 内部类
    */
   protected static class StrictMap<V> extends HashMap<String, V> {
 

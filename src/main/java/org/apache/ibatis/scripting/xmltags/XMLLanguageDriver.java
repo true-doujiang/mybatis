@@ -33,7 +33,16 @@ import org.apache.ibatis.session.Configuration;
  */
 public class XMLLanguageDriver implements LanguageDriver {
 
-  public ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
+  /**
+   * create DefaultParameterHandler
+   *
+   * @param mappedStatement The mapped statement that is being executed
+   * @param parameterObject The input parameter object (can be null)
+   * @param boundSql The resulting SQL once the dynamic language has been executed.
+   * @return
+   */
+  public ParameterHandler createParameterHandler(MappedStatement mappedStatement,
+                                                 Object parameterObject, BoundSql boundSql) {
     return new DefaultParameterHandler(mappedStatement, parameterObject, boundSql);
   }
 
@@ -42,6 +51,9 @@ public class XMLLanguageDriver implements LanguageDriver {
     return builder.parseScriptNode();
   }
 
+  /**
+   *
+   */
   public SqlSource createSqlSource(Configuration configuration, String script, Class<?> parameterType) {
     if (script.startsWith("<script>")) { // issue #3
       XPathParser parser = new XPathParser(script, false, configuration.getVariables(), new XMLMapperEntityResolver());
@@ -49,6 +61,7 @@ public class XMLLanguageDriver implements LanguageDriver {
     } else {
       script = PropertyParser.parse(script, configuration.getVariables()); // issue #127
       TextSqlNode textSqlNode = new TextSqlNode(script);
+
       if (textSqlNode.isDynamic()) {
         return new DynamicSqlSource(configuration, textSqlNode);
       } else {

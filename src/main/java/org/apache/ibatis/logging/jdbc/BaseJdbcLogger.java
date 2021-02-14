@@ -45,7 +45,7 @@ public abstract class BaseJdbcLogger {
   protected Log statementLog;
   protected int queryStack;
 
-  /*
+  /**
    * Default constructor
    */
   public BaseJdbcLogger(Log log, int queryStack) {

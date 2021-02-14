@@ -38,6 +38,7 @@ public class SqlSessionManager implements SqlSessionFactory, SqlSession {
 
   private ThreadLocal<SqlSession> localSqlSession = new ThreadLocal<SqlSession>();
 
+  //
   public static SqlSessionManager newInstance(Reader reader) {
     return new SqlSessionManager(new SqlSessionFactoryBuilder().build(reader, null, null));
   }
@@ -66,6 +67,10 @@ public class SqlSessionManager implements SqlSessionFactory, SqlSession {
     return new SqlSessionManager(sqlSessionFactory);
   }
 
+  /**
+   * 构造器私有化
+   * @param sqlSessionFactory
+   */
   private SqlSessionManager(SqlSessionFactory sqlSessionFactory) {
     this.sqlSessionFactory = sqlSessionFactory;
     this.sqlSessionProxy = (SqlSession) Proxy.newProxyInstance(

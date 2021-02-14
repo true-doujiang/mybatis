@@ -37,6 +37,7 @@ public class ResultMap {
   private List<ResultMapping> constructorResultMappings;
   private List<ResultMapping> propertyResultMappings;
 
+  // 字段
   private Set<String> mappedColumns;
 
   private Discriminator discriminator;

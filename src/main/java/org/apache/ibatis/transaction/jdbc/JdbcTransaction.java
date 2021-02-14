@@ -40,7 +40,7 @@ import org.apache.ibatis.transaction.TransactionException;
 public class JdbcTransaction implements Transaction {
 
   private static final Log log = LogFactory.getLog(JdbcTransaction.class);
-
+  // 事务管理器上需要绑定一个conn
   protected Connection connection;
   // 数据源
   protected DataSource dataSource;
@@ -52,10 +52,6 @@ public class JdbcTransaction implements Transaction {
 
   /**
    * 构造器
-   *
-   * @param ds
-   * @param desiredLevel
-   * @param desiredAutoCommit
    */
   public JdbcTransaction(DataSource ds, TransactionIsolationLevel desiredLevel, boolean desiredAutoCommit) {
     dataSource = ds;
@@ -109,9 +105,11 @@ public class JdbcTransaction implements Transaction {
   protected void setDesiredAutoCommit(boolean desiredAutoCommit) {
     try {
       if (connection.getAutoCommit() != desiredAutoCommit) {
+
         if (log.isDebugEnabled()) {
           log.debug("Setting autocommit to " + desiredAutoCommit + " on JDBC Connection [" + connection + "]");
         }
+
         connection.setAutoCommit(desiredAutoCommit);
       }
     } catch (SQLException e) {
@@ -150,6 +148,7 @@ public class JdbcTransaction implements Transaction {
     if (level != null) {
       connection.setTransactionIsolation(level.getLevel());
     }
+
     setDesiredAutoCommit(autoCommmit);
   }
 

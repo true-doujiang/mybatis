@@ -45,6 +45,11 @@ public class ManagedTransactionFactory implements TransactionFactory {
     }
   }
 
+  /**
+   *
+   * @param conn Existing database connection
+   * @return
+   */
   public Transaction newTransaction(Connection conn) {
     return new ManagedTransaction(conn, closeConnection);
   }

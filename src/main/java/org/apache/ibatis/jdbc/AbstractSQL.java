@@ -177,6 +177,9 @@ public abstract class AbstractSQL<T> {
 
   }
 
+  /**
+   * 内部类
+   */
   private static class SQLStatement {
 
     public enum StatementType {

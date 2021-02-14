@@ -36,7 +36,9 @@ import org.apache.ibatis.transaction.Transaction;
 public class SimpleExecutor extends BaseExecutor {
 
 
-  // 构造器
+  /**
+   * 构造器
+   */
   public SimpleExecutor(Configuration configuration, Transaction transaction) {
     super(configuration, transaction);
   }
@@ -47,7 +49,12 @@ public class SimpleExecutor extends BaseExecutor {
     Statement stmt = null;
     try {
       Configuration configuration = ms.getConfiguration();
-      StatementHandler handler = configuration.newStatementHandler(this, ms, parameter, RowBounds.DEFAULT, null, null);
+
+      // configuration对象创建StatementHandler
+      StatementHandler handler = configuration.newStatementHandler(
+              this, ms, parameter, RowBounds.DEFAULT, null, null);
+
+      // 创建 jdbc Statement
       stmt = prepareStatement(handler, ms.getStatementLog());
       return handler.update(stmt);
     } finally {
@@ -56,15 +63,7 @@ public class SimpleExecutor extends BaseExecutor {
   }
 
   /**
-   *
-   * @param ms
-   * @param parameter
-   * @param rowBounds
-   * @param resultHandler
-   * @param boundSql
-   * @param <E>
-   * @return
-   * @throws SQLException
+   * 创建 mybatis StatementHandler 执行查询
    */
   public <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds,
                              ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
@@ -73,11 +72,16 @@ public class SimpleExecutor extends BaseExecutor {
     try {
       Configuration configuration = ms.getConfiguration();
 
+      // 这样不行嘛
+      //this.configuration.newStatementHandler()
+
+      // configuration对象创建mybatis StatementHandler
       StatementHandler statementHandler =
               configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
 
+      // 创建jdbc Statement 并设置参数
       stmt = prepareStatement(statementHandler, ms.getStatementLog());
-
+      // 执行jdbc
       return statementHandler.<E>query(stmt, resultHandler);
     } finally {
       closeStatement(stmt);
@@ -85,15 +89,17 @@ public class SimpleExecutor extends BaseExecutor {
   }
 
   /**
-   *
-   * @param handler
+   *  1创建 jdbc Statement   2设置jdbc参数
+   * @param handler mybatis StatementHandler
    * @param statementLog
    */
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
-    // 调用父类方法 获取connection
+    // 调用父类方法 通过事务管理器获取connection  日志:Opening JDBC Connection
     Connection connection = getConnection(statementLog);
+    // 创建 jdbc Statement
     stmt = handler.prepare(connection);
+    // 设置jdbc参数
     handler.parameterize(stmt);
     return stmt;
   }

@@ -30,13 +30,18 @@ import org.apache.ibatis.io.Resources;
  */
 public class UnknownTypeHandler extends BaseTypeHandler<Object> {
 
+  //
   private static final ObjectTypeHandler OBJECT_TYPE_HANDLER = new ObjectTypeHandler();
 
   private TypeHandlerRegistry typeHandlerRegistry;
 
+  /**
+   * 构造器
+   */
   public UnknownTypeHandler(TypeHandlerRegistry typeHandlerRegistry) {
     this.typeHandlerRegistry = typeHandlerRegistry;
   }
+
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Object parameter, JdbcType jdbcType)

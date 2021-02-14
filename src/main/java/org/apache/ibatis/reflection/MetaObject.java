@@ -38,7 +38,9 @@ public class MetaObject {
   private ObjectWrapperFactory objectWrapperFactory;
 
 
-  // 构造器
+  /**
+   * 构造器
+   */
   private MetaObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory) {
     this.originalObject = object;
     this.objectFactory = objectFactory;
@@ -57,7 +59,8 @@ public class MetaObject {
     }
   }
 
-  public static MetaObject forObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory) {
+  public static MetaObject forObject(Object object, ObjectFactory objectFactory,
+                                     ObjectWrapperFactory objectWrapperFactory) {
     if (object == null) {
       return SystemMetaObject.NULL_META_OBJECT;
     } else {

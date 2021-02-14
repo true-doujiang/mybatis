@@ -49,13 +49,17 @@ public abstract class BaseStatementHandler implements StatementHandler {
   protected final ParameterHandler parameterHandler;
 
   protected final Executor executor;
+  //
   protected final MappedStatement mappedStatement;
+  // 分页参数
   protected final RowBounds rowBounds;
-
+  //
   protected BoundSql boundSql;
 
 
-  // 构造器
+  /**
+   * 构造器
+   */
   protected BaseStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject,
                                  RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     this.configuration = mappedStatement.getConfiguration();
@@ -73,24 +77,25 @@ public abstract class BaseStatementHandler implements StatementHandler {
 
     this.boundSql = boundSql;
 
-    this.parameterHandler = configuration.newParameterHandler(mappedStatement, parameterObject, boundSql);
+    // 参数处理器
+    ParameterHandler parameterHandler = configuration.newParameterHandler(
+                                             mappedStatement, parameterObject, boundSql);
+    this.parameterHandler = parameterHandler;
+
     // 结果集处理 handler
-    this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, rowBounds, parameterHandler, resultHandler, boundSql);
+    ResultSetHandler resultSetHandler = configuration.newResultSetHandler(
+            executor, mappedStatement, rowBounds, this.parameterHandler, resultHandler, boundSql);
+    this.resultSetHandler = resultSetHandler;
   }
 
-  public BoundSql getBoundSql() {
-    return boundSql;
-  }
-
-  public ParameterHandler getParameterHandler() {
-    return parameterHandler;
-  }
-
+  /**
+   * 创建 jdbc Statement
+   */
   public Statement prepare(Connection connection) throws SQLException {
     ErrorContext.instance().sql(boundSql.getSql());
     Statement statement = null;
     try {
-      //
+      // abstract method  具体Statement实现创建什么类型的Statement
       statement = instantiateStatement(connection);
       setStatementTimeout(statement);
       setFetchSize(statement);
@@ -105,12 +110,12 @@ public abstract class BaseStatementHandler implements StatementHandler {
   }
 
   /**
-   *
-   * @param connection
-   * @return
-   * @throws SQLException
+   * 初始化Statement
+   * 抽象方法 具体Statement实现
    */
   protected abstract Statement instantiateStatement(Connection connection) throws SQLException;
+
+
 
   protected void setStatementTimeout(Statement stmt) throws SQLException {
     Integer timeout = mappedStatement.getTimeout();
@@ -145,5 +150,16 @@ public abstract class BaseStatementHandler implements StatementHandler {
     keyGenerator.processBefore(executor, mappedStatement, null, parameter);
     ErrorContext.instance().recall();
   }
+
+
+
+  public BoundSql getBoundSql() {
+    return boundSql;
+  }
+
+  public ParameterHandler getParameterHandler() {
+    return parameterHandler;
+  }
+
 
 }

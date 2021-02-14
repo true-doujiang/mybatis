@@ -38,12 +38,19 @@ import org.apache.ibatis.transaction.Transaction;
 public class CachingExecutor implements Executor {
 
   private Executor delegate;
+  //
   private TransactionalCacheManager tcm = new TransactionalCacheManager();
 
+  /**
+   * 构造器
+   */
   public CachingExecutor(Executor delegate) {
     this.delegate = delegate;
+    // 被包装的executor对象也要记住被谁包装的
     delegate.setExecutorWrapper(this);
   }
+
+
 
   public Transaction getTransaction() {
     return delegate.getTransaction();
@@ -71,16 +78,26 @@ public class CachingExecutor implements Executor {
     return delegate.update(ms, parameterObject);
   }
 
-  public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
+  /**
+   *
+   */
+  public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds,
+                           ResultHandler resultHandler) throws SQLException {
     // 动态sql处理
     BoundSql boundSql = ms.getBoundSql(parameterObject);
+    //
     CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);
     return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
 
-  public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
-      throws SQLException {
+  /**
+   *
+   */
+  public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds,
+                 ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
+
     Cache cache = ms.getCache();
+    // 缓存相关操作
     if (cache != null) {
       flushCacheIfRequired(ms);
       if (ms.isUseCache() && resultHandler == null) {
@@ -94,6 +111,7 @@ public class CachingExecutor implements Executor {
         return list;
       }
     }
+
     return delegate.<E> query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
 
@@ -120,13 +138,15 @@ public class CachingExecutor implements Executor {
     if (ms.getStatementType() == StatementType.CALLABLE) {
       for (ParameterMapping parameterMapping : boundSql.getParameterMappings()) {
         if (parameterMapping.getMode() != ParameterMode.IN) {
-          throw new ExecutorException("Caching stored procedures with OUT params is not supported.  Please configure useCache=false in " + ms.getId() + " statement.");
+          throw new ExecutorException("Caching stored procedures with OUT params is not supported. " +
+                  " Please configure useCache=false in " + ms.getId() + " statement.");
         }
       }
     }
   }
 
-  public CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql) {
+  public CacheKey createCacheKey(MappedStatement ms, Object parameterObject,
+                                              RowBounds rowBounds, BoundSql boundSql) {
     return delegate.createCacheKey(ms, parameterObject, rowBounds, boundSql);
   }
 
@@ -134,7 +154,8 @@ public class CachingExecutor implements Executor {
     return delegate.isCached(ms, key);
   }
 
-  public void deferLoad(MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType) {
+  public void deferLoad(MappedStatement ms, MetaObject resultObject, String property,
+                                                            CacheKey key, Class<?> targetType) {
     delegate.deferLoad(ms, resultObject, property, key, targetType);
   }
 

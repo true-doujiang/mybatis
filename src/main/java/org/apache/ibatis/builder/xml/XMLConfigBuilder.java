@@ -130,7 +130,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
     parsed = true;
     XNode xNode = parser.evalNode("/configuration");
-    log.debug("start parse Configuration xNode: " + xNode);
+    log.debug("start parse Configuration xNode: \r\n" + xNode);
 
     // 解析全局配置文件中的 每个大标签
     // 如：properties  typeAliases  settings environments mappers
@@ -170,7 +170,6 @@ public class XMLConfigBuilder extends BaseBuilder {
       XNode settingsNode = root.evalNode("settings");
       settingsElement(settingsNode);
 
-      //
       // read it after objectFactory and objectWrapperFactory issue #631
       XNode environmentsNode = root.evalNode("environments");
       environmentsElement(environmentsNode);
@@ -290,9 +289,6 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   /**
    * settings全局参数配置
-   *
-   * @param context
-   * @throws Exception
    */
   private void settingsElement(XNode context) throws Exception {
     if (context != null) {
@@ -333,9 +329,7 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   /**
-   *
-   * @param context
-   * @throws Exception
+   * 环境处理 1.事务处理器  2.数据源
    */
   private void environmentsElement(XNode context) throws Exception {
     if (context != null) {
@@ -346,10 +340,13 @@ public class XMLConfigBuilder extends BaseBuilder {
       for (XNode child : context.getChildren()) {
         String id = child.getStringAttribute("id");
         if (isSpecifiedEnvironment(id)) {
-          // 事务处理
-          TransactionFactory txFactory = transactionManagerElement(child.evalNode("transactionManager"));
-          // 数据源处理
-          DataSourceFactory dsFactory = dataSourceElement(child.evalNode("dataSource"));
+          // 1事务处理
+          XNode transactionManagerNode = child.evalNode("transactionManager");
+          TransactionFactory txFactory = transactionManagerElement(transactionManagerNode);
+
+          // 2数据源处理
+          XNode dataSourceNode = child.evalNode("dataSource");
+          DataSourceFactory dsFactory = dataSourceElement(dataSourceNode);
           DataSource dataSource = dsFactory.getDataSource();
 
           Environment.Builder environmentBuilder = new Environment.Builder(id)
@@ -393,9 +390,6 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   /**
    * mybatis 自己的 DataSource工厂
-   * @param context
-   * @return
-   * @throws Exception
    */
   private DataSourceFactory dataSourceElement(XNode context) throws Exception {
     if (context != null) {
@@ -405,6 +399,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       // 根据配置获取指定类型的 DataSourceFactory
       DataSourceFactory factory = (DataSourceFactory) resolveClass(type).newInstance();
       factory.setProperties(props);
+
       return factory;
     }
     throw new BuilderException("Environment declaration requires a DataSourceFactory.");

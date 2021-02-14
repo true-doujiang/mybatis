@@ -31,6 +31,8 @@ import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 
+import javax.sql.DataSource;
+
 /**
  * @author Clinton Begin
  */
@@ -44,8 +46,6 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
   /**
    * 用户代码调用
-   *
-   * @return
    */
   public SqlSession openSession() {
     return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, false);
@@ -84,21 +84,21 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
   }
 
   /**
-   *
-   * @param execType
-   * @param level
-   * @param autoCommit
-   * @return
+   * 创建一个Sqlsession
    */
-  private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
+  private SqlSession openSessionFromDataSource(ExecutorType execType,
+                                               TransactionIsolationLevel level, boolean autoCommit) {
     // mybatis 自定义的事务处理类
     Transaction tx = null;
     try {
       final Environment environment = configuration.getEnvironment();
-      //
+      DataSource dataSource = environment.getDataSource();
+
+      // transactionFactory绑定在environment对象中的
       final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
-      tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
-      // 创建Executor  并绑定拦截器
+      tx = transactionFactory.newTransaction(dataSource, level, autoCommit);
+
+      // configuration创建Executor  1.保存事务管理器  2.对executor绑定拦截器
       final Executor executor = configuration.newExecutor(tx, execType);
 
       return new DefaultSqlSession(configuration, executor, autoCommit);
@@ -132,6 +132,9 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     }
   }
 
+  /**
+   *
+   */
   private TransactionFactory getTransactionFactoryFromEnvironment(Environment environment) {
     if (environment == null || environment.getTransactionFactory() == null) {
       return new ManagedTransactionFactory();

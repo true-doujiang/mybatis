@@ -34,9 +34,6 @@ public final class Environment {
 
   /**
    *
-   * @param id
-   * @param transactionFactory
-   * @param dataSource
    */
   public Environment(String id, TransactionFactory transactionFactory, DataSource dataSource) {
     if (id == null) {

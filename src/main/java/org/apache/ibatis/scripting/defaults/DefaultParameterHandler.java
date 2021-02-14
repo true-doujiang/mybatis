@@ -15,12 +15,10 @@
  */
 package org.apache.ibatis.scripting.defaults;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
-
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
@@ -30,6 +28,9 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author Clinton Begin
@@ -37,25 +38,28 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
  */
 public class DefaultParameterHandler implements ParameterHandler {
 
+
+  private static final Log log = LogFactory.getLog(DefaultParameterHandler.class);
   //
   private final TypeHandlerRegistry typeHandlerRegistry;
   //
   private final MappedStatement mappedStatement;
+  // 参数值
   private final Object parameterObject;
+  // CachingExecutor的query()创建的  一直传到了这里
   private BoundSql boundSql;
+
   private Configuration configuration;
 
 
   /**
    * 构造器
-   * @param mappedStatement
-   * @param parameterObject
-   * @param boundSql
    */
   public DefaultParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
     this.mappedStatement = mappedStatement;
     this.configuration = mappedStatement.getConfiguration();
     this.typeHandlerRegistry = mappedStatement.getConfiguration().getTypeHandlerRegistry();
+
     this.parameterObject = parameterObject;
     this.boundSql = boundSql;
   }
@@ -65,16 +69,21 @@ public class DefaultParameterHandler implements ParameterHandler {
   }
 
   /**
-   *
+   * jdbc参数设置
    * @param ps
    * @throws SQLException
    */
   public void setParameters(PreparedStatement ps) throws SQLException {
     ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
+
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+
     if (parameterMappings != null) {
+
       for (int i = 0; i < parameterMappings.size(); i++) {
+
         ParameterMapping parameterMapping = parameterMappings.get(i);
+
         if (parameterMapping.getMode() != ParameterMode.OUT) {
           Object value;
           String propertyName = parameterMapping.getProperty();
@@ -88,10 +97,17 @@ public class DefaultParameterHandler implements ParameterHandler {
             MetaObject metaObject = configuration.newMetaObject(parameterObject);
             value = metaObject.getValue(propertyName);
           }
+
           TypeHandler typeHandler = parameterMapping.getTypeHandler();
+
           JdbcType jdbcType = parameterMapping.getJdbcType();
-          if (value == null && jdbcType == null) jdbcType = configuration.getJdbcTypeForNull();
+          if (value == null && jdbcType == null) {
+            jdbcType = configuration.getJdbcTypeForNull();
+          }
+
           typeHandler.setParameter(ps, i + 1, value, jdbcType);
+
+          log.debug("setParameters ps: " + ps + " value: " + value + " jdbcType: " + jdbcType);
         }
       }
     }

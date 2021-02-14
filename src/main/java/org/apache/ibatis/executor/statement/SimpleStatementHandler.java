@@ -35,16 +35,20 @@ import org.apache.ibatis.session.RowBounds;
  */
 public class SimpleStatementHandler extends BaseStatementHandler {
 
+  /**
+   * 构造器
+   */
   public SimpleStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter,
                                 RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }
 
-  public int update(Statement statement)
-      throws SQLException {
+  @Override
+  public int update(Statement statement) throws SQLException {
     String sql = boundSql.getSql();
     Object parameterObject = boundSql.getParameterObject();
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
+
     int rows;
     if (keyGenerator instanceof Jdbc3KeyGenerator) {
       statement.execute(sql, Statement.RETURN_GENERATED_KEYS);
@@ -61,27 +65,35 @@ public class SimpleStatementHandler extends BaseStatementHandler {
     return rows;
   }
 
-  public void batch(Statement statement)
-      throws SQLException {
+  @Override
+  public void batch(Statement statement) throws SQLException {
     String sql = boundSql.getSql();
     statement.addBatch(sql);
   }
 
-  public <E> List<E> query(Statement statement, ResultHandler resultHandler)
-      throws SQLException {
+  @Override
+  public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     String sql = boundSql.getSql();
+    // jdbc
     statement.execute(sql);
+
     return resultSetHandler.<E>handleResultSets(statement);
   }
 
+  /**
+   * 初始化Statement
+   */
+  @Override
   protected Statement instantiateStatement(Connection connection) throws SQLException {
     if (mappedStatement.getResultSetType() != null) {
-      return connection.createStatement(mappedStatement.getResultSetType().getValue(), ResultSet.CONCUR_READ_ONLY);
+      int value = mappedStatement.getResultSetType().getValue();
+      return connection.createStatement(value, ResultSet.CONCUR_READ_ONLY);
     } else {
       return connection.createStatement();
     }
   }
 
+  @Override
   public void parameterize(Statement statement) throws SQLException {
     // N/A
   }

@@ -62,7 +62,9 @@ public class BindingTest {
     BaseDataTest.runScript(dataSource, BaseDataTest.BLOG_DDL);
     BaseDataTest.runScript(dataSource, BaseDataTest.BLOG_DATA);
     TransactionFactory transactionFactory = new JdbcTransactionFactory();
+
     Environment environment = new Environment("Production", transactionFactory, dataSource);
+
     Configuration configuration = new Configuration(environment);
     configuration.setLazyLoadingEnabled(true);
     configuration.getTypeAliasRegistry().registerAlias(Blog.class);

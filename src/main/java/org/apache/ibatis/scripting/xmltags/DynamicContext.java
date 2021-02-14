@@ -44,9 +44,11 @@ public class DynamicContext {
   private int uniqueNumber = 0;
 
 
-
-  //构造器
+  /**
+   * Default constructor
+   */
   public DynamicContext(Configuration configuration, Object parameterObject) {
+
     if (parameterObject != null && !(parameterObject instanceof Map)) {
       MetaObject metaObject = configuration.newMetaObject(parameterObject);
       bindings = new ContextMap(metaObject);
@@ -80,7 +82,7 @@ public class DynamicContext {
   }
 
   /**
-   *
+   * 内部类
    */
   static class ContextMap extends HashMap<String, Object> {
 
@@ -89,7 +91,9 @@ public class DynamicContext {
     private MetaObject parameterMetaObject;
 
 
-    // 构造器
+    /**
+     * Default constructor
+     */
     public ContextMap(MetaObject parameterMetaObject) {
       this.parameterMetaObject = parameterMetaObject;
     }
@@ -121,7 +125,7 @@ public class DynamicContext {
   }
 
   /**
-   *
+   * 内部类
    */
   static class ContextAccessor implements PropertyAccessor {
 

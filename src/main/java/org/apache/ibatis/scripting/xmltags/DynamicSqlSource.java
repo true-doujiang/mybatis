@@ -33,9 +33,7 @@ public class DynamicSqlSource implements SqlSource {
 
 
   /**
-   * 构造器
-   * @param configuration
-   * @param rootSqlNode
+   * Default constructor
    */
   public DynamicSqlSource(Configuration configuration, SqlNode rootSqlNode) {
     this.configuration = configuration;
@@ -43,7 +41,9 @@ public class DynamicSqlSource implements SqlSource {
   }
 
 
-
+  /**
+   *
+   */
   public BoundSql getBoundSql(Object parameterObject) {
     // 动态参数
     DynamicContext context = new DynamicContext(configuration, parameterObject);
@@ -54,11 +54,15 @@ public class DynamicSqlSource implements SqlSource {
 
     Class<?> parameterType = parameterObject == null ? Object.class : parameterObject.getClass();
 
+    String sql = context.getSql();
+    Map<String, Object> bindings = context.getBindings();
     // StaticSqlSource
-    SqlSource sqlSource = sqlSourceParser.parse(context.getSql(), parameterType, context.getBindings());
+    SqlSource sqlSource = sqlSourceParser.parse(sql, parameterType, bindings);
+    //
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
 
-    for (Map.Entry<String, Object> entry : context.getBindings().entrySet()) {
+    for (Map.Entry<String, Object> entry : bindings.entrySet()) {
+
       boundSql.setAdditionalParameter(entry.getKey(), entry.getValue());
     }
 

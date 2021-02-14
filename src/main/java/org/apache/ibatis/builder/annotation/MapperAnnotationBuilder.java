@@ -94,13 +94,11 @@ public class MapperAnnotationBuilder {
   private Configuration configuration;
   //
   private MapperBuilderAssistant assistant;
-  // XxxMapper.class
+  // xxxMapper.class
   private Class<?> type;
 
   /**
-   *
-   * @param configuration
-   * @param type
+   * 构造器
    */
   public MapperAnnotationBuilder(Configuration configuration, Class<?> type) {
     String resource = type.getName().replace('.', '/') + ".java (best guess)";
@@ -120,10 +118,13 @@ public class MapperAnnotationBuilder {
     sqlProviderAnnotationTypes.add(DeleteProvider.class);
   }
 
-  //
+
+  /**
+   *
+   */
   public void parse() {
     String resource = type.toString();
-    //
+
     if (!configuration.isResourceLoaded(resource)) {
       //
       loadXmlResource();
@@ -178,8 +179,7 @@ public class MapperAnnotationBuilder {
       if (inputStream != null) {
         //
         XMLMapperBuilder xmlParser = new XMLMapperBuilder(inputStream,
-                assistant.getConfiguration(), xmlResource,
-                configuration.getSqlFragments(), type.getName());
+                assistant.getConfiguration(), xmlResource, configuration.getSqlFragments(), type.getName());
         xmlParser.parse();
       }
     }
@@ -261,17 +261,18 @@ public class MapperAnnotationBuilder {
   }
 
   /**
-   *
-   * @param method
+   * 解析mapper接口方法上的注解   注解方式
    */
   void parseStatement(Method method) {
     Class<?> parameterTypeClass = getParameterType(method);
     LanguageDriver languageDriver = getLanguageDriver(method);
 
+    //
     SqlSource sqlSource = getSqlSourceFromAnnotations(method, parameterTypeClass, languageDriver);
     if (sqlSource != null) {
       Options options = method.getAnnotation(Options.class);
 
+      // statementId
       final String mappedStatementId = type.getName() + "." + method.getName();
 
       Integer fetchSize = null;
@@ -413,25 +414,36 @@ public class MapperAnnotationBuilder {
 
   private SqlSource getSqlSourceFromAnnotations(Method method, Class<?> parameterType, LanguageDriver languageDriver) {
     try {
+
       Class<? extends Annotation> sqlAnnotationType = getSqlAnnotationType(method);
       Class<? extends Annotation> sqlProviderAnnotationType = getSqlProviderAnnotationType(method);
       if (sqlAnnotationType != null) {
+
         if (sqlProviderAnnotationType != null) {
           throw new BindingException("You cannot supply both a static SQL and SqlProvider to method named " + method.getName());
         }
+
         Annotation sqlAnnotation = method.getAnnotation(sqlAnnotationType);
+
         final String[] strings = (String[]) sqlAnnotation.getClass().getMethod("value").invoke(sqlAnnotation);
         return buildSqlSourceFromStrings(strings, parameterType, languageDriver);
+
       } else if (sqlProviderAnnotationType != null) {
+
         Annotation sqlProviderAnnotation = method.getAnnotation(sqlProviderAnnotationType);
         return new ProviderSqlSource(assistant.getConfiguration(), sqlProviderAnnotation);
       }
+
       return null;
     } catch (Exception e) {
       throw new BuilderException("Could not find value method on SQL annotation.  Cause: " + e, e);
     }
   }
 
+  /**
+   *
+   * @param strings select * from users where id = #{value}
+   */
   private SqlSource buildSqlSourceFromStrings(String[] strings, Class<?> parameterTypeClass, LanguageDriver languageDriver) {
     final StringBuilder sql = new StringBuilder();
     for (String fragment : strings) {

@@ -39,9 +39,13 @@ public class ReuseExecutor extends BaseExecutor {
 
   private final Map<String, Statement> statementMap = new HashMap<String, Statement>();
 
+  /**
+   * 构造器
+   */
   public ReuseExecutor(Configuration configuration, Transaction transaction) {
     super(configuration, transaction);
   }
+
 
   public int doUpdate(MappedStatement ms, Object parameter) throws SQLException {
     Configuration configuration = ms.getConfiguration();
@@ -50,9 +54,14 @@ public class ReuseExecutor extends BaseExecutor {
     return handler.update(stmt);
   }
 
+  /**
+   *
+   */
   public <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
     Configuration configuration = ms.getConfiguration();
-    StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
+    StatementHandler handler = configuration.newStatementHandler(
+                      wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
+
     Statement stmt = prepareStatement(handler, ms.getStatementLog());
     return handler.<E>query(stmt, resultHandler);
   }
@@ -65,6 +74,9 @@ public class ReuseExecutor extends BaseExecutor {
     return Collections.emptyList();
   }
 
+  /**
+   * 
+   */
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
     BoundSql boundSql = handler.getBoundSql();
@@ -72,10 +84,14 @@ public class ReuseExecutor extends BaseExecutor {
     if (hasStatementFor(sql)) {
       stmt = getStatement(sql);
     } else {
+
       Connection connection = getConnection(statementLog);
+      // 创建 jdbc Statement
       stmt = handler.prepare(connection);
       putStatement(sql, stmt);
     }
+
+    // 设置jdbc参数
     handler.parameterize(stmt);
     return stmt;
   }

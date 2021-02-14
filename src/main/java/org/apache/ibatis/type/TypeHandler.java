@@ -25,7 +25,10 @@ import java.sql.SQLException;
  */
 public interface TypeHandler<T> {
 
+  // jdbc参数设置
   void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException;
+
+
 
   T getResult(ResultSet rs, String columnName) throws SQLException;
 

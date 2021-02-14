@@ -30,21 +30,34 @@ public class ParameterMapping {
   private Configuration configuration;
 
   private String property;
+  //
   private ParameterMode mode;
   private Class<?> javaType = Object.class;
   private JdbcType jdbcType;
   private Integer numericScale;
+  //
   private TypeHandler<?> typeHandler;
   private String resultMapId;
   private String jdbcTypeName;
   private String expression;
 
+  /**
+   * Default constructor
+   */
   private ParameterMapping() {
   }
 
+
+  /**
+   * 内部类
+   */
   public static class Builder {
+
     private ParameterMapping parameterMapping = new ParameterMapping();
 
+    /**
+     * constructor
+     */
     public Builder(Configuration configuration, String property, TypeHandler<?> typeHandler) {
       parameterMapping.configuration = configuration;
       parameterMapping.property = property;

@@ -55,6 +55,7 @@ import org.apache.ibatis.type.TypeHandler;
 public class MapperBuilderAssistant extends BaseBuilder {
 
   private String currentNamespace;
+  // com/yhh/example/demo/mapper/UserMapper.xml
   private String resource;
   private Cache currentCache;
   private boolean unresolvedCacheRef; // issue #676
@@ -118,13 +119,6 @@ public class MapperBuilderAssistant extends BaseBuilder {
 
   /**
    *
-   * @param typeClass
-   * @param evictionClass
-   * @param flushInterval
-   * @param size
-   * @param readWrite
-   * @param props
-   * @return
    */
   public Cache useNewCache(Class<? extends Cache> typeClass, Class<? extends Cache> evictionClass,
       Long flushInterval, Integer size, boolean readWrite, Properties props) {
@@ -246,6 +240,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
   }
 
   /**
+   * add ms
+   * 调用1: org.apache.ibatis.builder.annotation.MapperAnnotationBuilder#parseStatement
+   * 调用2: org.apache.ibatis.builder.xml.XMLStatementBuilder#parseStatementNode
    *
    */
   public MappedStatement addMappedStatement(String id, SqlSource sqlSource,
@@ -272,6 +269,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       throw new IncompleteElementException("Cache-ref not yet resolved");
     }
 
+    // 如果不是权限定名，则修正为全限定名
     id = applyCurrentNamespace(id, false);
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
 
@@ -294,6 +292,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     setStatementCache(isSelect, flushCache, useCache, currentCache, statementBuilder);
 
     MappedStatement statement = statementBuilder.build();
+    // 添加ms
     configuration.addMappedStatement(statement);
     return statement;
   }
@@ -302,12 +301,8 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return value == null ? defaultValue : value;
   }
 
-  private void setStatementCache(
-      boolean isSelect,
-      boolean flushCache,
-      boolean useCache,
-      Cache cache,
-      MappedStatement.Builder statementBuilder) {
+  private void setStatementCache(boolean isSelect, boolean flushCache, boolean useCache,
+                                 Cache cache, MappedStatement.Builder statementBuilder) {
     flushCache = valueOrDefault(flushCache, !isSelect);
     useCache = valueOrDefault(useCache, isSelect);
     statementBuilder.flushCacheRequired(flushCache);
@@ -315,10 +310,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
     statementBuilder.cache(cache);
   }
 
-  private void setStatementParameterMap(
-      String parameterMap,
-      Class<?> parameterTypeClass,
-      MappedStatement.Builder statementBuilder) {
+  private void setStatementParameterMap(String parameterMap, Class<?> parameterTypeClass,
+                                        MappedStatement.Builder statementBuilder) {
+
     parameterMap = applyCurrentNamespace(parameterMap, true);
 
     if (parameterMap != null) {
@@ -334,6 +328,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
           statementBuilder.id() + "-Inline",
           parameterTypeClass,
           parameterMappings);
+
       statementBuilder.parameterMap(inlineParameterMapBuilder.build());
     }
   }

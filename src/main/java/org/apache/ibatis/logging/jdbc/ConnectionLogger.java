@@ -36,28 +36,37 @@ public final class ConnectionLogger extends BaseJdbcLogger implements Invocation
 
   private Connection connection;
 
+  /**
+   * 构造器
+   * @param conn
+   */
   private ConnectionLogger(Connection conn, Log statementLog, int queryStack) {
     super(statementLog, queryStack);
     this.connection = conn;
   }
 
-  public Object invoke(Object proxy, Method method, Object[] params)
-      throws Throwable {
+  /**
+   *
+   */
+  public Object invoke(Object proxy, Method method, Object[] params) throws Throwable {
     try {
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, params);
-      }    
+      }
+
       if ("prepareStatement".equals(method.getName())) {
         if (isDebugEnabled()) {
           debug(" Preparing: " + removeBreakingWhitespace((String) params[0]), true);
-        }        
+        }
+
         PreparedStatement stmt = (PreparedStatement) method.invoke(connection, params);
         stmt = PreparedStatementLogger.newInstance(stmt, statementLog, queryStack);
         return stmt;
       } else if ("prepareCall".equals(method.getName())) {
         if (isDebugEnabled()) {
           debug(" Preparing: " + removeBreakingWhitespace((String) params[0]), true);
-        }        
+        }
+
         PreparedStatement stmt = (PreparedStatement) method.invoke(connection, params);
         stmt = PreparedStatementLogger.newInstance(stmt, statementLog, queryStack);
         return stmt;
@@ -66,6 +75,7 @@ public final class ConnectionLogger extends BaseJdbcLogger implements Invocation
         stmt = StatementLogger.newInstance(stmt, statementLog, queryStack);
         return stmt;
       } else {
+        //
         return method.invoke(connection, params);
       }
     } catch (Throwable t) {

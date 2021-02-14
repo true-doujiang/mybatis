@@ -21,7 +21,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.ExecutorException;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
@@ -39,15 +38,21 @@ import org.apache.ibatis.type.JdbcType;
 public class CallableStatementHandler extends BaseStatementHandler {
 
 
-  // 构造器
-  public CallableStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+  /**
+   * 构造器
+   */
+  public CallableStatementHandler(Executor executor, MappedStatement mappedStatement,
+                                  Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
+                                  BoundSql boundSql) {
     super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }
 
-  public int update(Statement statement)
-      throws SQLException {
+  @Override
+  public int update(Statement statement) throws SQLException {
     CallableStatement cs = (CallableStatement) statement;
+    // jdbc
     cs.execute();
+
     int rows = cs.getUpdateCount();
     Object parameterObject = boundSql.getParameterObject();
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
@@ -56,30 +61,40 @@ public class CallableStatementHandler extends BaseStatementHandler {
     return rows;
   }
 
-  public void batch(Statement statement)
-      throws SQLException {
+  @Override
+  public void batch(Statement statement) throws SQLException {
     CallableStatement cs = (CallableStatement) statement;
+    // jdbc
     cs.addBatch();
   }
 
-  public <E> List<E> query(Statement statement, ResultHandler resultHandler)
-      throws SQLException {
+  @Override
+  public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     CallableStatement cs = (CallableStatement) statement;
+    // jdbc
     cs.execute();
+
     List<E> resultList = resultSetHandler.<E>handleResultSets(cs);
     resultSetHandler.handleOutputParameters(cs);
     return resultList;
   }
 
+  /**
+   * create jdbc Statement
+   */
+  @Override
   protected Statement instantiateStatement(Connection connection) throws SQLException {
     String sql = boundSql.getSql();
+
     if (mappedStatement.getResultSetType() != null) {
-      return connection.prepareCall(sql, mappedStatement.getResultSetType().getValue(), ResultSet.CONCUR_READ_ONLY);
+      int value = mappedStatement.getResultSetType().getValue();
+      return connection.prepareCall(sql, value, ResultSet.CONCUR_READ_ONLY);
     } else {
       return connection.prepareCall(sql);
     }
   }
 
+  @Override
   public void parameterize(Statement statement) throws SQLException {
     registerOutputParameters((CallableStatement) statement);
     parameterHandler.setParameters((CallableStatement) statement);

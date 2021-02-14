@@ -28,15 +28,21 @@ import org.apache.ibatis.session.Configuration;
 public class StaticSqlSource implements SqlSource {
 
   private String sql;
+  //
   private List<ParameterMapping> parameterMappings;
   private Configuration configuration;
 
 
-  // 构造器
+  /**
+   * constructor
+   */
   public StaticSqlSource(Configuration configuration, String sql) {
     this(configuration, sql, null);
   }
 
+  /**
+   * constructor
+   */
   public StaticSqlSource(Configuration configuration, String sql, List<ParameterMapping> parameterMappings) {
     this.sql = sql;
     this.parameterMappings = parameterMappings;

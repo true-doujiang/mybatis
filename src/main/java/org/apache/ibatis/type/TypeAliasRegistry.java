@@ -37,9 +37,13 @@ import org.apache.ibatis.io.Resources;
  */
 public class TypeAliasRegistry {
 
-  // key： 别名    value： 类
+  // key： 别名    value： 类   "string", String.class
   private final Map<String, Class<?>> TYPE_ALIASES = new HashMap<String, Class<?>>();
 
+
+  /**
+   * 构造器
+   */
   public TypeAliasRegistry() {
     registerAlias("string", String.class);
 
@@ -101,6 +105,8 @@ public class TypeAliasRegistry {
     registerAlias("ResultSet", ResultSet.class);
   }
 
+
+
   @SuppressWarnings("unchecked")
   // throws class cast exception as well if types cannot be assigned
   public <T> Class<T> resolveAlias(String string) {
@@ -115,6 +121,7 @@ public class TypeAliasRegistry {
       } else {
         value = (Class<T>) Resources.classForName(string);
       }
+
       return value;
     } catch (ClassNotFoundException e) {
       throw new TypeException("Could not resolve type alias '" + string + "'.  Cause: " + e, e);
@@ -147,10 +154,16 @@ public class TypeAliasRegistry {
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
     if (aliasAnnotation != null) {
       alias = aliasAnnotation.value();
-    } 
+    }
+
     registerAlias(alias, type);
   }
 
+  /**
+   *
+   * @param alias
+   * @param value
+   */
   public void registerAlias(String alias, Class<?> value) {
     if (alias == null) {
       throw new TypeException("The parameter alias cannot be null");
@@ -158,8 +171,11 @@ public class TypeAliasRegistry {
 
     String key = alias.toLowerCase(Locale.ENGLISH); // issue #748
 
-    if (TYPE_ALIASES.containsKey(key) && TYPE_ALIASES.get(key) != null && !TYPE_ALIASES.get(key).equals(value)) {
-      throw new TypeException("The alias '" + alias + "' is already mapped to the value '" + TYPE_ALIASES.get(key).getName() + "'.");
+    if (TYPE_ALIASES.containsKey(key)
+            && TYPE_ALIASES.get(key) != null
+            && !TYPE_ALIASES.get(key).equals(value)) {
+      throw new TypeException("The alias '" + alias
+              + "' is already mapped to the value '" + TYPE_ALIASES.get(key).getName() + "'.");
     }
 
     TYPE_ALIASES.put(key, value);
@@ -167,7 +183,8 @@ public class TypeAliasRegistry {
 
   public void registerAlias(String alias, String value) {
     try {
-      registerAlias(alias, Resources.classForName(value));
+      Class<?> clazz = Resources.classForName(value);
+      registerAlias(alias, clazz);
     } catch (ClassNotFoundException e) {
       throw new TypeException("Error registering type alias "+alias+" for "+value+". Cause: " + e, e);
     }

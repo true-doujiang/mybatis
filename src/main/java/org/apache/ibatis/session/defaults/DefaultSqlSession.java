@@ -15,12 +15,6 @@
  */
 package org.apache.ibatis.session.defaults;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.exceptions.ExceptionFactory;
 import org.apache.ibatis.exceptions.TooManyResultsException;
@@ -29,27 +23,41 @@ import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.result.DefaultMapResultHandler;
 import org.apache.ibatis.executor.result.DefaultResultContext;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Clinton Begin
  */
 public class DefaultSqlSession implements SqlSession {
 
+
+  private static final Log log = LogFactory.getLog(DefaultSqlSession.class);
+
   //
   private Configuration configuration;
-  //
+  // 默认肯定是 CachingExecutor  门面设计模式
+  // SqlSession sqlSession = sqlSessionFactory.openSession();  创建 Executor
   private Executor executor;
 
   private boolean autoCommit;
   private boolean dirty;
 
 
-  //构造器
+  /**
+   * 构造器
+   */
   public DefaultSqlSession(Configuration configuration, Executor executor, boolean autoCommit) {
     this.configuration = configuration;
     this.executor = executor;
@@ -57,14 +65,18 @@ public class DefaultSqlSession implements SqlSession {
     this.autoCommit = autoCommit;
   }
 
-  public DefaultSqlSession(Configuration configuration, Executor executor) {
-    this(configuration, executor, false);
-  }
+//  public DefaultSqlSession(Configuration configuration, Executor executor) {
+//    this(configuration, executor, false);
+//  }
+
 
   public <T> T selectOne(String statement) {
     return this.<T>selectOne(statement, null);
   }
 
+  /**
+   * MapperMethod的execute方法调用
+   */
   public <T> T selectOne(String statement, Object parameter) {
     // Popular vote was to return null on 0 results and throw exception on too many.
     List<T> list = this.<T>selectList(statement, parameter);
@@ -116,9 +128,14 @@ public class DefaultSqlSession implements SqlSession {
    */
   public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
     try {
+      // 底层通过 configuration的mappedStatements获取
       MappedStatement ms = configuration.getMappedStatement(statement);
-      //
+      log.debug("DefaultSqlSession selectList statement: " + statement);
+      log.debug("DefaultSqlSession selectList statement: " + ms);
+
+      // list、数组类型参数转换
       Object o = wrapCollection(parameter);
+      // 执行器开始闪亮登场
       List<E> result = executor.query(ms, o, rowBounds, Executor.NO_RESULT_HANDLER);
       return result;
     } catch (Exception e) {
@@ -233,13 +250,12 @@ public class DefaultSqlSession implements SqlSession {
   }
 
   /**
-   *
-   * @param type Mapper interface class
-   * @param <T>
-   * @return
+   * 用户代码中调用我  生成mapper代理类
    */
   public <T> T getMapper(Class<T> type) {
-    return configuration.<T>getMapper(type, this);
+    // 底层通过mapper注册器 把this传进去
+    //return configuration.<T>getMapper(type, this);
+    return configuration.getMapper(type, this);
   }
 
   public Connection getConnection() {
@@ -260,8 +276,6 @@ public class DefaultSqlSession implements SqlSession {
 
   /**
    *
-   * @param object
-   * @return
    */
   private Object wrapCollection(final Object object) {
     if (object instanceof List) {
@@ -276,6 +290,9 @@ public class DefaultSqlSession implements SqlSession {
     return object;
   }
 
+  /**
+   * 内部类
+   */
   public static class StrictMap<V> extends HashMap<String, V> {
 
     private static final long serialVersionUID = -5741767162221585340L;

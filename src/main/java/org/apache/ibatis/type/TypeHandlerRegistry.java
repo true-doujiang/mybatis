@@ -35,6 +35,7 @@ import org.apache.ibatis.io.ResolverUtil;
  */
 public final class TypeHandlerRegistry {
 
+  //
   private static final Map<Class<?>, Class<?>> reversePrimitiveMap = new HashMap<Class<?>, Class<?>>() {
     private static final long serialVersionUID = 1L;
     {
@@ -49,17 +50,25 @@ public final class TypeHandlerRegistry {
     }
   };
 
+  //
   private final Map<JdbcType, TypeHandler<?>> JDBC_TYPE_HANDLER_MAP = new EnumMap<JdbcType, TypeHandler<?>>(JdbcType.class);
+  // key: javaType  value: Map<jdbcType, TypeHandler>
   private final Map<Type, Map<JdbcType, TypeHandler<?>>> TYPE_HANDLER_MAP = new HashMap<Type, Map<JdbcType, TypeHandler<?>>>();
+  //
   private final TypeHandler<Object> UNKNOWN_TYPE_HANDLER = new UnknownTypeHandler(this);
+  //
   private final Map<Class<?>, TypeHandler<?>> ALL_TYPE_HANDLERS_MAP = new HashMap<Class<?>, TypeHandler<?>>();
 
 
-  // 构造器
+  /**
+   * 构造器
+   */
   public TypeHandlerRegistry() {
-    register(Boolean.class, new BooleanTypeHandler());
+    BooleanTypeHandler booleanTypeHandler = new BooleanTypeHandler();
+    register(Boolean.class, booleanTypeHandler);
     register(boolean.class, new BooleanTypeHandler());
     register(JdbcType.BOOLEAN, new BooleanTypeHandler());
+
     register(JdbcType.BIT, new BooleanTypeHandler());
 
     register(Byte.class, new ByteTypeHandler());
@@ -181,7 +190,15 @@ public final class TypeHandlerRegistry {
     return getTypeHandler(javaTypeReference.getRawType(), jdbcType);
   }
 
+  /**
+   *
+   * @param type
+   * @param jdbcType
+   * @param <T>
+   * @return
+   */
   private <T> TypeHandler<T> getTypeHandler(Type type, JdbcType jdbcType) {
+
     Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = TYPE_HANDLER_MAP.get(type);
     TypeHandler<?> handler = null;
     if (jdbcHandlerMap != null) {
@@ -190,9 +207,11 @@ public final class TypeHandlerRegistry {
         handler = jdbcHandlerMap.get(null);
       }
     }
+
     if (handler == null && type != null && type instanceof Class && Enum.class.isAssignableFrom((Class<?>) type)) {
       handler = new EnumTypeHandler((Class<?>) type);
     }
+
     @SuppressWarnings("unchecked")
     // type drives generics here
     TypeHandler<T> returned = (TypeHandler<T>) handler;
@@ -244,8 +263,16 @@ public final class TypeHandlerRegistry {
     register((Type) javaType, typeHandler);
   }
 
+
+  /**
+   *
+   * @param javaType
+   * @param typeHandler
+   * @param <T>
+   */
   private <T> void register(Type javaType, TypeHandler<? extends T> typeHandler) {
     MappedJdbcTypes mappedJdbcTypes = typeHandler.getClass().getAnnotation(MappedJdbcTypes.class);
+
     if (mappedJdbcTypes != null) {
       for (JdbcType handledJdbcType : mappedJdbcTypes.value()) {
         register(javaType, handledJdbcType, typeHandler);
@@ -268,6 +295,12 @@ public final class TypeHandlerRegistry {
     register((Type) type, jdbcType, handler);
   }
 
+  /**
+   *
+   * @param javaType
+   * @param jdbcType
+   * @param handler
+   */
   private void register(Type javaType, JdbcType jdbcType, TypeHandler<?> handler) {
     if (javaType != null) {
       Map<JdbcType, TypeHandler<?>> map = TYPE_HANDLER_MAP.get(javaType);
@@ -275,11 +308,17 @@ public final class TypeHandlerRegistry {
         map = new HashMap<JdbcType, TypeHandler<?>>();
         TYPE_HANDLER_MAP.put(javaType, map);
       }
+
+      //
       map.put(jdbcType, handler);
+
       if (reversePrimitiveMap.containsKey(javaType)) {
-        register(reversePrimitiveMap.get(javaType), jdbcType, handler);
+        Class<?> clazz = reversePrimitiveMap.get(javaType);
+        register(clazz, jdbcType, handler);
       }
+
     }
+
     ALL_TYPE_HANDLERS_MAP.put(handler.getClass(), handler);
   }
 

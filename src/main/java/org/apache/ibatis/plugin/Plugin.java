@@ -36,10 +36,13 @@ public class Plugin implements InvocationHandler {
   private Object target;
   //
   private Interceptor interceptor;
-
+  //存放指定的方法(添加了拦截器)
   private Map<Class<?>, Set<Method>> signatureMap;
 
 
+  /**
+   * 构造器
+   */
   private Plugin(Object target, Interceptor interceptor, Map<Class<?>, Set<Method>> signatureMap) {
     this.target = target;
     this.interceptor = interceptor;
@@ -48,43 +51,46 @@ public class Plugin implements InvocationHandler {
 
   /**
    *
-   * @param target
-   * @param interceptor
-   * @return
    */
   public static Object wrap(Object target, Interceptor interceptor) {
+
     Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
     Class<?> type = target.getClass();
+
     Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
+
     if (interfaces.length > 0) {
-      return Proxy.newProxyInstance(
-          type.getClassLoader(),
-          interfaces,
-          new Plugin(target, interceptor, signatureMap));
+      Plugin plugin = new Plugin(target, interceptor, signatureMap);
+      return Proxy.newProxyInstance(type.getClassLoader(), interfaces, plugin);
     }
+
     return target;
   }
 
   /**
    *
-   * @param proxy
-   * @param method
-   * @param args
-   * @return
-   * @throws Throwable
    */
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
       Set<Method> methods = signatureMap.get(method.getDeclaringClass());
+
+      // 可以对指定方法配置拦截器
       if (methods != null && methods.contains(method)) {
+        // 执行拦截器方法
         return interceptor.intercept(new Invocation(target, method, args));
       }
+
       return method.invoke(target, args);
     } catch (Exception e) {
       throw ExceptionUtil.unwrapThrowable(e);
     }
   }
 
+  /**
+   * 解析@Intercepts注解
+   * @param interceptor
+   * @return
+   */
   private static Map<Class<?>, Set<Method>> getSignatureMap(Interceptor interceptor) {
     Intercepts interceptsAnnotation = interceptor.getClass().getAnnotation(Intercepts.class);
     if (interceptsAnnotation == null) { // issue #251
@@ -92,6 +98,7 @@ public class Plugin implements InvocationHandler {
     }
     Signature[] sigs = interceptsAnnotation.value();
     Map<Class<?>, Set<Method>> signatureMap = new HashMap<Class<?>, Set<Method>>();
+
     for (Signature sig : sigs) {
       Set<Method> methods = signatureMap.get(sig.type());
       if (methods == null) {
@@ -105,11 +112,14 @@ public class Plugin implements InvocationHandler {
         throw new PluginException("Could not find method on " + sig.type() + " named " + sig.method() + ". Cause: " + e, e);
       }
     }
+
     return signatureMap;
   }
 
+
   private static Class<?>[] getAllInterfaces(Class<?> type, Map<Class<?>, Set<Method>> signatureMap) {
     Set<Class<?>> interfaces = new HashSet<Class<?>>();
+
     while (type != null) {
       for (Class<?> c : type.getInterfaces()) {
         if (signatureMap.containsKey(c)) {
@@ -118,6 +128,7 @@ public class Plugin implements InvocationHandler {
       }
       type = type.getSuperclass();
     }
+
     return interfaces.toArray(new Class<?>[interfaces.size()]);
   }
 

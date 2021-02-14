@@ -52,36 +52,41 @@ public abstract class BaseExecutor implements Executor {
 
   //事务处理器 通过我可以获取到数据库connection
   protected Transaction transaction;
-  //
+  // CachingExecutor构造器
   protected Executor wrapper;
 
   protected ConcurrentLinkedQueue<DeferredLoad> deferredLoads;
   // 缓存 底层就是个hashmap
   protected PerpetualCache localCache;
   protected PerpetualCache localOutputParameterCache;
-
+  // 构造器中初始化
   protected Configuration configuration;
 
   protected int queryStack = 0;
   private boolean closed;
 
 
-  //构造器
+  /**
+   * 构造器
+   */
   protected BaseExecutor(Configuration configuration, Transaction transaction) {
     this.transaction = transaction;
     this.deferredLoads = new ConcurrentLinkedQueue<DeferredLoad>();
     this.localCache = new PerpetualCache("LocalCache");
     this.localOutputParameterCache = new PerpetualCache("LocalOutputParameterCache");
     this.closed = false;
+
     this.configuration = configuration;
     this.wrapper = this;
   }
 
+  @Override
   public Transaction getTransaction() {
     if (closed) throw new ExecutorException("Executor was closed.");
     return transaction;
   }
 
+  @Override
   public void close(boolean forceRollback) {
     try {
       try {
@@ -101,10 +106,12 @@ public abstract class BaseExecutor implements Executor {
     }
   }
 
+  @Override
   public boolean isClosed() {
     return closed;
   }
 
+  @Override
   public int update(MappedStatement ms, Object parameter) throws SQLException {
     ErrorContext.instance().resource(ms.getResource()).activity("executing an update").object(ms.getId());
     if (closed) throw new ExecutorException("Executor was closed.");
@@ -112,6 +119,7 @@ public abstract class BaseExecutor implements Executor {
     return doUpdate(ms, parameter);
   }
 
+  @Override
   public List<BatchResult> flushStatements() throws SQLException {
     return flushStatements(false);
   }
@@ -123,24 +131,22 @@ public abstract class BaseExecutor implements Executor {
 
   /**
    *
-   * @param ms
-   * @param parameter
-   * @param rowBounds
-   * @param resultHandler
-   * @param <E>
-   * @return
-   * @throws SQLException
    */
-  public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
+  @Override
+  public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds,
+                               ResultHandler resultHandler) throws SQLException {
     BoundSql boundSql = ms.getBoundSql(parameter);
-
     CacheKey key = createCacheKey(ms, parameter, rowBounds, boundSql);
     return query(ms, parameter, rowBounds, resultHandler, key, boundSql);
  }
 
+  /**
+   *
+   */
   @SuppressWarnings("unchecked")
-  public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
-                           CacheKey key, BoundSql boundSql) throws SQLException {
+  @Override
+  public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds,
+                  ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
 
     ErrorContext.instance().resource(ms.getResource()).activity("executing a query").object(ms.getId());
     if (closed) {
@@ -178,6 +184,7 @@ public abstract class BaseExecutor implements Executor {
     return list;
   }
 
+  @Override
   public void deferLoad(MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType) {
     if (closed) throw new ExecutorException("Executor was closed.");
     DeferredLoad deferredLoad = new DeferredLoad(resultObject, property, key, localCache, configuration, targetType);
@@ -190,12 +197,8 @@ public abstract class BaseExecutor implements Executor {
 
   /**
    *
-   * @param ms
-   * @param parameterObject
-   * @param rowBounds
-   * @param boundSql
-   * @return
    */
+  @Override
   public CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql) {
     if (closed) {
       throw new ExecutorException("Executor was closed.");
@@ -230,12 +233,14 @@ public abstract class BaseExecutor implements Executor {
     }
 
     return cacheKey;
-  }    
+  }
 
+  @Override
   public boolean isCached(MappedStatement ms, CacheKey key) {
     return localCache.getObject(key) != null;
   }
 
+  @Override
   public void commit(boolean required) throws SQLException {
     if (closed) throw new ExecutorException("Cannot commit, transaction is already closed");
     clearLocalCache();
@@ -245,6 +250,7 @@ public abstract class BaseExecutor implements Executor {
     }
   }
 
+  @Override
   public void rollback(boolean required) throws SQLException {
     if (!closed) {
       try {
@@ -258,6 +264,7 @@ public abstract class BaseExecutor implements Executor {
     }
   }
 
+  @Override
   public void clearLocalCache() {
     if (!closed) {
       localCache.clear();
@@ -265,14 +272,20 @@ public abstract class BaseExecutor implements Executor {
     }
   }
 
+  /**
+   * 带do的方法都是真正干活的，有具体子类实现
+   *      BatchExecutor, ReuseExecutor, SimpleExecutor
+   */
   protected abstract int doUpdate(MappedStatement ms, Object parameter)
       throws SQLException;
 
   protected abstract List<BatchResult> doFlushStatements(boolean isRollback)
       throws SQLException;
 
-  protected abstract <E> List<E> doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql)
-      throws SQLException;
+  protected abstract <E> List<E> doQuery(MappedStatement ms, Object parameter,
+           RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException;
+
+
 
   protected void closeStatement(Statement statement) {
     if (statement != null) {
@@ -302,10 +315,10 @@ public abstract class BaseExecutor implements Executor {
   }
 
   /**
-   *
+   * 查询数据库，并放入一级缓存
    */
   private <E> List<E> queryFromDatabase(MappedStatement ms, Object parameter, RowBounds rowBounds,
-                                        ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
+                         ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
     List<E> list;
     localCache.putObject(key, EXECUTION_PLACEHOLDER);
     try {
@@ -316,8 +329,8 @@ public abstract class BaseExecutor implements Executor {
     }
 
     localCache.putObject(key, list);
-    System.out.println(Thread.currentThread().getName() + " queryFromDatabase后结果放入 \r\nlocalCache = "
-            + localCache + " \r\nkey = " + key + " \r\nlist = " + list);
+//    System.out.println(Thread.currentThread().getName() + " queryFromDatabase后结果放入 \r\nlocalCache = "
+//            + localCache + " \r\nkey = " + key + " \r\nlist = " + list);
 
     if (ms.getStatementType() == StatementType.CALLABLE) {
       localOutputParameterCache.putObject(key, parameter);
@@ -327,10 +340,8 @@ public abstract class BaseExecutor implements Executor {
   }
 
   /**
-   *
-   * @param statementLog
-   * @return
-   * @throws SQLException
+   * 子类调用
+   * 从事务管理器中拿一个conn，事务管理器则从DataSource中拿的
    */
   protected Connection getConnection(Log statementLog) throws SQLException {
     Connection connection = transaction.getConnection();
@@ -340,14 +351,16 @@ public abstract class BaseExecutor implements Executor {
       return connection;
     }
   }
-  
+
+
+  @Override
   public void setExecutorWrapper(Executor wrapper) {
     this.wrapper = wrapper;
   }
 
 
   /**
-   *
+   * 内部类
    */
   private static class DeferredLoad {
 

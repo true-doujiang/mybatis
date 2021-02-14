@@ -46,9 +46,13 @@ public class BatchExecutor extends BaseExecutor {
   private String currentSql;
   private MappedStatement currentStatement;
 
+  /**
+   * 构造器
+   */
   public BatchExecutor(Configuration configuration, Transaction transaction) {
     super(configuration, transaction);
   }
+
 
   public int doUpdate(MappedStatement ms, Object parameterObject) throws SQLException {
     final Configuration configuration = ms.getConfiguration();

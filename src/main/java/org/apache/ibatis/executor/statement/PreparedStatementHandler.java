@@ -38,21 +38,19 @@ public class PreparedStatementHandler extends BaseStatementHandler {
 
   /**
    * 构造器
-   * @param executor
-   * @param mappedStatement
-   * @param parameter
-   * @param rowBounds
-   * @param resultHandler
-   * @param boundSql
    */
-  public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+  public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter,
+                                  RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }
 
 
+  @Override
   public int update(Statement statement) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
+    // jdbc
     ps.execute();
+
     int rows = ps.getUpdateCount();
     Object parameterObject = boundSql.getParameterObject();
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
@@ -60,25 +58,30 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     return rows;
   }
 
+  @Override
   public void batch(Statement statement) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
+    // jdbc
     ps.addBatch();
   }
 
+  @Override
   public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
     PreparedStatement ps = (PreparedStatement) statement;
+    // jdbc
     ps.execute();
+
     return resultSetHandler.<E> handleResultSets(ps);
   }
 
+
   /**
-   *
-   * @param connection
-   * @return
-   * @throws SQLException
+   * create jdbc Statement
    */
+  @Override
   protected Statement instantiateStatement(Connection connection) throws SQLException {
     String sql = boundSql.getSql();
+
     if (mappedStatement.getKeyGenerator() instanceof Jdbc3KeyGenerator) {
       String[] keyColumnNames = mappedStatement.getKeyColumns();
       if (keyColumnNames == null) {
@@ -87,12 +90,15 @@ public class PreparedStatementHandler extends BaseStatementHandler {
         return connection.prepareStatement(sql, keyColumnNames);
       }
     } else if (mappedStatement.getResultSetType() != null) {
-      return connection.prepareStatement(sql, mappedStatement.getResultSetType().getValue(), ResultSet.CONCUR_READ_ONLY);
+      int value = mappedStatement.getResultSetType().getValue();
+      return connection.prepareStatement(sql, value, ResultSet.CONCUR_READ_ONLY);
     } else {
+      // jdbc api  熟悉吧
       return connection.prepareStatement(sql);
     }
   }
 
+  @Override
   public void parameterize(Statement statement) throws SQLException {
     parameterHandler.setParameters((PreparedStatement) statement);
   }

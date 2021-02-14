@@ -17,8 +17,11 @@ package org.apache.ibatis.binding;
 
 import org.apache.ibatis.builder.annotation.MapperAnnotationBuilder;
 import org.apache.ibatis.io.ResolverUtil;
+import org.apache.ibatis.logging.Log;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.transaction.jdbc.JdbcTransaction;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -33,13 +36,16 @@ import java.util.Set;
  */
 public class MapperRegistry {
 
+
+  private static final Log log = LogFactory.getLog(MapperRegistry.class);
+
+
   private Configuration config;
   //
   private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<Class<?>, MapperProxyFactory<?>>();
 
   /**
    * 构造器
-   * @param config
    */
   public MapperRegistry(Configuration config) {
     this.config = config;
@@ -47,16 +53,12 @@ public class MapperRegistry {
 
   /**
    * 动态代理生产Mapper实现类
-   *
-   * @param type
-   * @param sqlSession
-   * @param <T>
-   * @return
    */
   @SuppressWarnings("unchecked")
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
     //
     final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
+    log.debug("MapperRegistry getMapper mapperProxyFactory: " + mapperProxyFactory);
 
     if (mapperProxyFactory == null)
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
@@ -67,36 +69,38 @@ public class MapperRegistry {
     }
   }
   
-  public <T> boolean hasMapper(Class<T> type) {
-    return knownMappers.containsKey(type);
+  public <T> boolean hasMapper(Class<T> mapperType) {
+    return knownMappers.containsKey(mapperType);
   }
 
   /**
-   *
-   * @param type XxxMapper.class
-   * @param <T>
+   * 添加一个 Mapper 到 mapper注册器
+   * @param mapperType xxxMapper.class
    */
-  public <T> void addMapper(Class<T> type) {
-    if (type.isInterface()) {
+  public <T> void addMapper(Class<T> mapperType) {
+    if (mapperType.isInterface()) {
 
-      if (hasMapper(type)) {
-        throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
+      if (hasMapper(mapperType)) {
+        throw new BindingException("Type " + mapperType + " is already known to the MapperRegistry.");
       }
 
       boolean loadCompleted = false;
       try {
         //
-        knownMappers.put(type, new MapperProxyFactory<T>(type));
+        MapperProxyFactory<T> mapperProxyFactory = new MapperProxyFactory<T>(mapperType);
+        knownMappers.put(mapperType, mapperProxyFactory);
+        log.debug("mapper 注册器 addMapper: " + mapperType);
+
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
         // mapper parser. If the type is already known, it won't try.
-        MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
+        MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, mapperType);
         // 解析Mapper 上的注解
         parser.parse();
         loadCompleted = true;
       } finally {
         if (!loadCompleted) {
-          knownMappers.remove(type);
+          knownMappers.remove(mapperType);
         }
       }
     }
@@ -111,8 +115,6 @@ public class MapperRegistry {
 
   /**
    * @since 3.2.2
-   *
-   *
    */
   public void addMappers(String packageName, Class<?> superType) {
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<Class<?>>();

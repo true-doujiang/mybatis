@@ -36,7 +36,9 @@ public final class MappedStatement {
   private String resource;
   private Configuration configuration;
 
+  // org.apache.ibatis.submitted.typehandler.Mapper.getUser
   private String id;
+
   private Integer fetchSize;
 
   private Integer timeout;
@@ -45,25 +47,29 @@ public final class MappedStatement {
   private StatementType statementType;
   private ResultSetType resultSetType;
 
-  // 动态sql DynamicSqlSource
+  // 动态sql DynamicSqlSource, RawSqlSource, StaticSqlSource
   private SqlSource sqlSource;
   // 缓存
   private Cache cache;
 
   private ParameterMap parameterMap;
+  //
   private List<ResultMap> resultMaps;
 
   private boolean flushCacheRequired;
   private boolean useCache;
   private boolean resultOrdered;
 
+  // insert update select delete
   private SqlCommandType sqlCommandType;
   private KeyGenerator keyGenerator;
   private String[] keyProperties;
   private String[] keyColumns;
   private boolean hasNestedResultMaps;
+
   private String databaseId;
   private Log statementLog;
+  //
   private LanguageDriver lang;
   private String[] resultSets;
 
@@ -85,22 +91,21 @@ public final class MappedStatement {
     private MappedStatement mappedStatement = new MappedStatement();
 
     /**
-     *
-     * @param configuration
-     * @param id
-     * @param sqlSource
-     * @param sqlCommandType
+     * 构造器
      */
     public Builder(Configuration configuration, String id, SqlSource sqlSource, SqlCommandType sqlCommandType) {
       mappedStatement.configuration = configuration;
       mappedStatement.id = id;
       mappedStatement.sqlSource = sqlSource;
+      // 默认jdbc statement类型
       mappedStatement.statementType = StatementType.PREPARED;
-      mappedStatement.parameterMap = new ParameterMap.Builder(configuration, "defaultParameterMap", null, new ArrayList<ParameterMapping>()).build();
+      mappedStatement.parameterMap = new ParameterMap.Builder(
+                    configuration, "defaultParameterMap", null, new ArrayList<ParameterMapping>()).build();
       mappedStatement.resultMaps = new ArrayList<ResultMap>();
       mappedStatement.timeout = configuration.getDefaultStatementTimeout();
       mappedStatement.sqlCommandType = sqlCommandType;
-      mappedStatement.keyGenerator = configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType) ? new Jdbc3KeyGenerator() : new NoKeyGenerator();
+      mappedStatement.keyGenerator = configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType) ?
+                                                            new Jdbc3KeyGenerator() : new NoKeyGenerator();
       String logId = id;
       if (configuration.getLogPrefix() != null) {
         logId = configuration.getLogPrefix() + id;
@@ -109,6 +114,8 @@ public final class MappedStatement {
       mappedStatement.statementLog = LogFactory.getLog(logId);
       mappedStatement.lang = configuration.getDefaultScriptingLanuageInstance();
     }
+
+
 
     public Builder resource(String resource) {
       mappedStatement.resource = resource;
@@ -201,7 +208,10 @@ public final class MappedStatement {
       mappedStatement.resultSets = delimitedStringtoArray(resultSet);
       return this;
     }
-    
+
+    /**
+     *
+     */
     public MappedStatement build() {
       assert mappedStatement.configuration != null;
       assert mappedStatement.id != null;
@@ -212,6 +222,7 @@ public final class MappedStatement {
       return mappedStatement;
     }
   }
+  // --------------内部类结束-----------------
 
   public KeyGenerator getKeyGenerator() {
     return keyGenerator;
@@ -306,16 +317,16 @@ public final class MappedStatement {
   }
 
   /**
-   *  把参数 拼接到sql中
+   * 把参数 拼接到sql中
    *
-   * @param parameterObject
-   * @return
+   *
    */
   public BoundSql getBoundSql(Object parameterObject) {
-
+    //
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
 
     List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+
     if (parameterMappings == null || parameterMappings.size() <= 0) {
       boundSql = new BoundSql(configuration, boundSql.getSql(), parameterMap.getParameterMappings(), parameterObject);
     }

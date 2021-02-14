@@ -65,7 +65,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   private MapperBuilderAssistant builderAssistant;
   // <sql> 标签  key：id
   private Map<String, XNode> sqlFragments;
-
+  // com/yhh/example/demo/mapper/UserMapper.xml
   private String resource;
 
 
@@ -84,11 +84,6 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   /**
    * 构造器
-   * @param inputStream
-   * @param configuration
-   * @param resource
-   * @param sqlFragments
-   * @param namespace
    */
   public XMLMapperBuilder(InputStream inputStream, Configuration configuration, String resource, Map<String, XNode> sqlFragments, String namespace) {
     this(inputStream, configuration, resource, sqlFragments);
@@ -97,10 +92,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   /**
    * 构造器
-   * @param inputStream
    * @param configuration  XMLConfigBuilder解析 mapper标签时传过来的 configuration
-   * @param resource
-   * @param sqlFragments
    */
   public XMLMapperBuilder(InputStream inputStream, Configuration configuration, String resource, Map<String, XNode> sqlFragments) {
     // 用法 同 XMLConfigBuilder
@@ -110,14 +102,10 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   /**
    * 私有构造器
-   *
-   * @param parser
-   * @param configuration
-   * @param resource
-   * @param sqlFragments
    */
   private XMLMapperBuilder(XPathParser parser, Configuration configuration, String resource, Map<String, XNode> sqlFragments) {
     super(configuration);
+    //
     this.builderAssistant = new MapperBuilderAssistant(configuration, resource);
     this.parser = parser;
     this.sqlFragments = sqlFragments;
@@ -131,7 +119,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     if (!configuration.isResourceLoaded(resource)) {
       // 全局配置文件中的 <mapper>
       XNode xNode = parser.evalNode("/mapper");
-      log.debug("start parse Mapper xNode: " + xNode);
+      log.debug("start parse Mapper xNode: \r\n" + xNode);
 
       configurationElement(xNode);
 
@@ -200,7 +188,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     for (XNode context : list) {
       // 创建
       final XMLStatementBuilder statementParser = new XMLStatementBuilder(
-              configuration, builderAssistant, context, requiredDatabaseId);
+                                    configuration, builderAssistant, context, requiredDatabaseId);
       try {
         statementParser.parseStatementNode();
       } catch (IncompleteElementException e) {

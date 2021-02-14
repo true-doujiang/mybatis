@@ -29,12 +29,20 @@ public abstract class TypeReference<T> {
 
   private final Type rawType;
 
+  /**
+   * 构造器
+   */
   protected TypeReference() {
     rawType = getSuperclassTypeParameter(getClass());
   }
 
+
+
+
   Type getSuperclassTypeParameter(Class<?> clazz) {
+
     Type genericSuperclass = clazz.getGenericSuperclass();
+
     if (genericSuperclass instanceof Class) {
       // try to climb up the hierarchy until meet something useful
       if (TypeReference.class != genericSuperclass) {
@@ -46,6 +54,7 @@ public abstract class TypeReference<T> {
     }
 
     Type rawType = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
+
     // TODO remove this when Reflector is fixed to return Types
     if (rawType instanceof ParameterizedType) {
       rawType = ((ParameterizedType) rawType).getRawType();
