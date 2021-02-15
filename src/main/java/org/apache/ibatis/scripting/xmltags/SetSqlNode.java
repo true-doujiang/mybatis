@@ -27,6 +27,9 @@ public class SetSqlNode extends TrimSqlNode {
 
   private static List<String> suffixList = Arrays.asList(",");
 
+  /**
+   * Default constructor
+   */
   public SetSqlNode(Configuration configuration,SqlNode contents) {
     super(configuration, contents, "SET", null, null, suffixList);
   }

@@ -195,14 +195,18 @@ public final class TypeHandlerRegistry {
    * @param type
    * @param jdbcType
    * @param <T>
-   * @return
    */
   private <T> TypeHandler<T> getTypeHandler(Type type, JdbcType jdbcType) {
 
+    // key: javaType  value: Map<jdbcType, TypeHandler>
     Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = TYPE_HANDLER_MAP.get(type);
+
     TypeHandler<?> handler = null;
+
     if (jdbcHandlerMap != null) {
+
       handler = jdbcHandlerMap.get(jdbcType);
+
       if (handler == null) {
         handler = jdbcHandlerMap.get(null);
       }

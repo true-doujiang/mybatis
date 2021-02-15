@@ -19,10 +19,14 @@ package org.apache.ibatis.scripting.xmltags;
  * @author Clinton Begin
  */
 public class IfSqlNode implements SqlNode {
+
   private ExpressionEvaluator evaluator;
   private String test;
   private SqlNode contents;
 
+  /**
+   * Default constructor
+   */
   public IfSqlNode(SqlNode contents, String test) {
     this.test = test;
     this.contents = contents;

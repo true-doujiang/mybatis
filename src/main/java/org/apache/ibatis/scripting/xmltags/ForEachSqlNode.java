@@ -25,6 +25,7 @@ import org.apache.ibatis.session.Configuration;
  * @author Clinton Begin
  */
 public class ForEachSqlNode implements SqlNode {
+
   public static final String ITEM_PREFIX = "__frch_";
 
   private ExpressionEvaluator evaluator;
@@ -37,7 +38,11 @@ public class ForEachSqlNode implements SqlNode {
   private String index;
   private Configuration configuration;
 
-  public ForEachSqlNode(Configuration configuration, SqlNode contents, String collectionExpression, String index, String item, String open, String close, String separator) {
+  /**
+   * Default constructor
+   */
+  public ForEachSqlNode(Configuration configuration, SqlNode contents, String collectionExpression,
+                        String index, String item, String open, String close, String separator) {
     this.evaluator = new ExpressionEvaluator();
     this.collectionExpression = collectionExpression;
     this.contents = contents;

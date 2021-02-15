@@ -21,9 +21,13 @@ import java.util.List;
  * @author Clinton Begin
  */
 public class ChooseSqlNode implements SqlNode {
+
   private SqlNode defaultSqlNode;
   private List<SqlNode> ifSqlNodes;
 
+  /**
+   * Default constructor
+   */
   public ChooseSqlNode(List<SqlNode> ifSqlNodes, SqlNode defaultSqlNode) {
     this.ifSqlNodes = ifSqlNodes;
     this.defaultSqlNode = defaultSqlNode;

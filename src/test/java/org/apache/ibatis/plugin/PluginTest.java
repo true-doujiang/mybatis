@@ -28,7 +28,8 @@ public class PluginTest {
   @Test
   public void mapPluginShouldInterceptGet() {
     Map map = new HashMap();
-    map = (Map) new AlwaysMapPlugin().plugin(map);
+    AlwaysMapPlugin alwaysMapPlugin = new AlwaysMapPlugin();
+    map = (Map)alwaysMapPlugin.plugin(map);
     assertEquals("Always", map.get("Anything"));
   }
 
@@ -36,12 +37,14 @@ public class PluginTest {
   public void shouldNotInterceptToString() {
     Map map = new HashMap();
     map = (Map) new AlwaysMapPlugin().plugin(map);
+    map.get("yyyyy");
     assertFalse("Always".equals(map.toString()));
   }
 
-  @Intercepts({
-      @Signature(type = Map.class, method = "get", args = {Object.class})})
+  // 拦截器类
+  @Intercepts({@Signature(type = Map.class, method = "get", args = {Object.class})})
   public static class AlwaysMapPlugin implements Interceptor {
+
     public Object intercept(Invocation invocation) throws Throwable {
       return "Always";
     }

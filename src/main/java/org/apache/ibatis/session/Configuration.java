@@ -138,7 +138,7 @@ public class Configuration {
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
   /**
-   * mapper注册器  底层是个HashMap   ******很重要******
+   * mapper注册器  底层是个HashMap
    */
   protected MapperRegistry mapperRegistry = new MapperRegistry(this);
 
@@ -181,7 +181,7 @@ public class Configuration {
 
   protected final Map<String, XNode> sqlFragments = new StrictMap<XNode>("XML fragments parsed from previous mappers");
 
-  // 解析 <mapper> 标签用的
+  // 存放已经解析的mapper.xml的路径 和 interface org.apache.ibatis.binding.BoundBlogMapper
   protected final Set<String> loadedResources = new HashSet<String>();
 
 
@@ -673,7 +673,7 @@ public class Configuration {
    */
   public void addMappedStatement(MappedStatement ms) {
     String id = ms.getId();
-    log.debug("Configuration addMappedStatement id: " + id);
+    log.debug("Configuration addMappedStatement statementId: " + id);
     mappedStatements.put(id, ms);
   }
 

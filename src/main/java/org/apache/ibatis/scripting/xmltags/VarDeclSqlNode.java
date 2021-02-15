@@ -23,6 +23,9 @@ public class VarDeclSqlNode implements SqlNode {
   private final String name;
   private final String expression;
 
+  /**
+   * Default constructor
+   */
   public VarDeclSqlNode(String var, String exp) {
     name = var;
     expression = exp;

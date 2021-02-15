@@ -20,8 +20,16 @@ package org.apache.ibatis.mapping;
  * It creates the SQL that will be passed to the database out of the input parameter received from the user.
  *
  * @author Clinton Begin
+ *
+ * 不要和SqlNode接口搞混淆了
  */
 public interface SqlSource {
+
+  // 4个实现类
+  // DynamicSqlSource
+  // StaticSqlSource
+  // RawSqlSource
+  // ProviderSqlSource
 
   BoundSql getBoundSql(Object parameterObject);
 

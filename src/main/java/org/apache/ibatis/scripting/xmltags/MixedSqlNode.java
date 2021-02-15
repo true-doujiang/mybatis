@@ -25,6 +25,9 @@ public class MixedSqlNode implements SqlNode {
 
   private List<SqlNode> contents;
 
+  /**
+   * Default constructor
+   */
   public MixedSqlNode(List<SqlNode> contents) {
     this.contents = contents;
   }

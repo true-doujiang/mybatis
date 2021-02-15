@@ -20,12 +20,17 @@ package org.apache.ibatis.parsing;
  */
 public class GenericTokenParser {
 
+  // {
   private final String openToken;
+  // }
   private final String closeToken;
+  //
   private final TokenHandler handler;
 
 
-  // 构造器
+  /**
+   * Default constructor
+   */
   public GenericTokenParser(String openToken, String closeToken, TokenHandler handler) {
     this.openToken = openToken;
     this.closeToken = closeToken;
@@ -59,7 +64,9 @@ public class GenericTokenParser {
             builder.append(src, offset, start - offset);
             offset = start + openToken.length();
             String content = new String(src, offset, end - offset);
-            builder.append(handler.handleToken(content));
+            //
+            String s = handler.handleToken(content);
+            builder.append(s);
             offset = end + closeToken.length();
           }
         }

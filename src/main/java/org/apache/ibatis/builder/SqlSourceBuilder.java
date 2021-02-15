@@ -27,13 +27,15 @@ import org.apache.ibatis.reflection.MetaClass;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.TypeHandler;
 
 /**
  * @author Clinton Begin
  */
 public class SqlSourceBuilder extends BaseBuilder {
 
-  private static final String parameterProperties = "javaType,jdbcType,mode,numericScale,resultMap,typeHandler,jdbcTypeName";
+  private static final String parameterProperties =
+          "javaType,jdbcType,mode,numericScale,resultMap,typeHandler,jdbcTypeName";
 
 
   /**
@@ -45,33 +47,34 @@ public class SqlSourceBuilder extends BaseBuilder {
 
   /**
    * 
-   * @param originalSql
-   * @param parameterType
-   * @param additionalParameters
-   * @return
    */
   public SqlSource parse(String originalSql, Class<?> parameterType, Map<String, Object> additionalParameters) {
-    ParameterMappingTokenHandler handler = new ParameterMappingTokenHandler(configuration, parameterType, additionalParameters);
-    GenericTokenParser partokenParserer = new GenericTokenParser("#{", "}", handler);
+    // 下面一点内部类
+    ParameterMappingTokenHandler handler =
+            new ParameterMappingTokenHandler(configuration, parameterType, additionalParameters);
+
+    GenericTokenParser partokenParserer =
+            new GenericTokenParser("#{", "}", handler);
+
     String sql = partokenParserer.parse(originalSql);
+
     return new StaticSqlSource(configuration, sql, handler.getParameterMappings());
   }
-
 
   /**
    * 内部类
    */
   private static class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandler {
-
+    //
     private List<ParameterMapping> parameterMappings = new ArrayList<ParameterMapping>();
     private Class<?> parameterType;
     private MetaObject metaParameters;
 
-
     /**
      * 构造器
      */
-    public ParameterMappingTokenHandler(Configuration configuration, Class<?> parameterType, Map<String, Object> additionalParameters) {
+    public ParameterMappingTokenHandler(Configuration configuration, Class<?> parameterType,
+                                        Map<String, Object> additionalParameters) {
       super(configuration);
       this.parameterType = parameterType;
       this.metaParameters = configuration.newMetaObject(additionalParameters);
@@ -81,8 +84,12 @@ public class SqlSourceBuilder extends BaseBuilder {
       return parameterMappings;
     }
 
+    /**
+     * 保存设置参数的TypeHandler
+     */
     public String handleToken(String content) {
-      parameterMappings.add(buildParameterMapping(content));
+      ParameterMapping parameterMapping = buildParameterMapping(content);
+      parameterMappings.add(parameterMapping);
       return "?";
     }
 
@@ -90,6 +97,7 @@ public class SqlSourceBuilder extends BaseBuilder {
       Map<String, String> propertiesMap = parseParameterMapping(content);
       String property = propertiesMap.get("property");
       Class<?> propertyType;
+
       if (metaParameters.hasGetter(property)) { // issue #448 get type from additional params
         propertyType = metaParameters.getGetterType(property);
       } else if (typeHandlerRegistry.hasTypeHandler(parameterType)) {
@@ -106,9 +114,12 @@ public class SqlSourceBuilder extends BaseBuilder {
       } else {
         propertyType = Object.class;
       }
+
+      //
       ParameterMapping.Builder builder = new ParameterMapping.Builder(configuration, property, propertyType);
       Class<?> javaType = propertyType;
       String typeHandlerAlias = null;
+
       for (Map.Entry<String, String> entry : propertiesMap.entrySet()) {
         String name = entry.getKey();
         String value = entry.getValue();
@@ -132,12 +143,16 @@ public class SqlSourceBuilder extends BaseBuilder {
         } else if ("expression".equals(name)) {
           throw new BuilderException("Expression based parameters are not supported yet");
         } else {
-          throw new BuilderException("An invalid property '" + name + "' was found in mapping #{" + content + "}.  Valid properties are " + parameterProperties);
+          throw new BuilderException("An invalid property '" + name
+           + "' was found in mapping #{" + content + "}.  Valid properties are " + parameterProperties);
         }
       }
+
       if (typeHandlerAlias != null) {
-        builder.typeHandler(resolveTypeHandler(javaType, typeHandlerAlias));
+        TypeHandler<?> typeHandler = resolveTypeHandler(javaType, typeHandlerAlias);
+        builder.typeHandler(typeHandler);
       }
+
       return builder.build();
     }
 
@@ -147,7 +162,8 @@ public class SqlSourceBuilder extends BaseBuilder {
       } catch (BuilderException ex) {
         throw ex;
       } catch (Exception ex) {
-        throw new BuilderException("Parsing error was found in mapping #{" + content + "}.  Check syntax #{property|(expression), var1=value1, var2=value2, ...} ", ex);
+        throw new BuilderException("Parsing error was found in mapping #{" + content
+                + "}.  Check syntax #{property|(expression), var1=value1, var2=value2, ...} ", ex);
       }
     }
   }

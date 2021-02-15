@@ -32,15 +32,24 @@ public class TrimSqlNode implements SqlNode {
   private SqlNode contents;
   private String prefix;
   private String suffix;
+
   private List<String> prefixesToOverride;
   private List<String> suffixesToOverride;
   private Configuration configuration;
 
-  public TrimSqlNode(Configuration configuration, SqlNode contents, String prefix, String prefixesToOverride, String suffix, String suffixesToOverride) {
+  /**
+   * constructor
+   */
+  public TrimSqlNode(Configuration configuration, SqlNode contents, String prefix,
+                     String prefixesToOverride, String suffix, String suffixesToOverride) {
     this(configuration, contents, prefix, parseOverrides(prefixesToOverride), suffix, parseOverrides(suffixesToOverride));
   }
 
-  protected TrimSqlNode(Configuration configuration, SqlNode contents, String prefix, List<String> prefixesToOverride, String suffix, List<String> suffixesToOverride) {
+  /**
+   * constructor
+   */
+  protected TrimSqlNode(Configuration configuration, SqlNode contents, String prefix,
+                        List<String> prefixesToOverride, String suffix, List<String> suffixesToOverride) {
     this.contents = contents;
     this.prefix = prefix;
     this.prefixesToOverride = prefixesToOverride;

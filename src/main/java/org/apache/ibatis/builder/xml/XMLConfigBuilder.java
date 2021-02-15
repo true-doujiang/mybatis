@@ -66,7 +66,6 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   /**
    * 构造器
-   * @param reader
    */
   public XMLConfigBuilder(Reader reader) {
     this(reader, null, null);
@@ -97,7 +96,8 @@ public class XMLConfigBuilder extends BaseBuilder {
    */
   public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
     // XMLMapperEntityResolver xml规范校验
-    this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
+    this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()),
+            environment, props);
   }
 
   /**

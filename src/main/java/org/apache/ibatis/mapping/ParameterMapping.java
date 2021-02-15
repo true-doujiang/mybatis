@@ -32,10 +32,12 @@ public class ParameterMapping {
   private String property;
   //
   private ParameterMode mode;
+
   private Class<?> javaType = Object.class;
   private JdbcType jdbcType;
+
   private Integer numericScale;
-  //
+  // 设置参数的handler
   private TypeHandler<?> typeHandler;
   private String resultMapId;
   private String jdbcTypeName;
@@ -112,6 +114,9 @@ public class ParameterMapping {
       return this;
     }
 
+    /**
+     *
+     */
     public ParameterMapping build() {
       resolveTypeHandler();
       validate();
@@ -134,11 +139,17 @@ public class ParameterMapping {
       }
     }
 
+    /**
+     * 匹配参数处理handler
+     */
     private void resolveTypeHandler() {
       if (parameterMapping.typeHandler == null && parameterMapping.javaType != null) {
         Configuration configuration = parameterMapping.configuration;
+
         TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
-        parameterMapping.typeHandler = typeHandlerRegistry.getTypeHandler(parameterMapping.javaType, parameterMapping.jdbcType);
+        TypeHandler<?> typeHandler = typeHandlerRegistry.getTypeHandler(parameterMapping.javaType, parameterMapping.jdbcType);
+        parameterMapping.typeHandler = typeHandler;
+
       }
     }
 

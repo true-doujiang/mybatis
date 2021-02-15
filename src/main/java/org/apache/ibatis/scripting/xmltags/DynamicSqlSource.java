@@ -62,7 +62,6 @@ public class DynamicSqlSource implements SqlSource {
     BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
 
     for (Map.Entry<String, Object> entry : bindings.entrySet()) {
-
       boundSql.setAdditionalParameter(entry.getKey(), entry.getValue());
     }
 

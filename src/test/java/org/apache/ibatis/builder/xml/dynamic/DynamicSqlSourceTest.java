@@ -58,9 +58,8 @@ public class DynamicSqlSourceTest extends BaseDataTest {
   @Test
   public void shouldDemonstrateMultipartExpectedTextWithNoLoopsOrConditionals() throws Exception {
     final String expected = "SELECT * FROM BLOG WHERE ID = ?";
-    DynamicSqlSource source = createDynamicSqlSource(
-        new TextSqlNode("SELECT * FROM BLOG"),
-        new TextSqlNode("WHERE ID = ?"));
+    DynamicSqlSource source = createDynamicSqlSource(new TextSqlNode("SELECT * FROM BLOG"),
+                                                      new TextSqlNode("WHERE ID = ?"));
     BoundSql boundSql = source.getBoundSql(null);
     assertEquals(expected, boundSql.getSql());
   }
@@ -359,6 +358,7 @@ public class DynamicSqlSourceTest extends BaseDataTest {
     final Reader reader = Resources.getResourceAsReader(resource);
     SqlSessionFactory sqlMapper = new SqlSessionFactoryBuilder().build(reader);
     Configuration configuration = sqlMapper.getConfiguration();
+
     MixedSqlNode sqlNode = mixedContents(contents);
     return new DynamicSqlSource(configuration, sqlNode);
   }

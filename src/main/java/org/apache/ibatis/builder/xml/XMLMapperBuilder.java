@@ -61,7 +61,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   // xml解析器  使用xPath解析
   private XPathParser parser;
-  // 构造器中初始化   很重要
+  // 构造器中初始化, 里面保存了configuration的引用,用于添加MappedStatement
   private MapperBuilderAssistant builderAssistant;
   // <sql> 标签  key：id
   private Map<String, XNode> sqlFragments;
@@ -113,16 +113,17 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   /**
-   *
+   * 解析mapper.xml
    */
   public void parse() {
     if (!configuration.isResourceLoaded(resource)) {
       // 全局配置文件中的 <mapper>
       XNode xNode = parser.evalNode("/mapper");
-      log.debug("start parse Mapper xNode: \r\n" + xNode);
+      log.debug("start parse Mapper.xml xNode: \r\n" + xNode);
 
       configurationElement(xNode);
 
+      // 路径保存到configuration中
       configuration.addLoadedResource(resource);
       bindMapperForNamespace();
     }

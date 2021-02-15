@@ -46,17 +46,12 @@ public class XMLStatementBuilder extends BaseBuilder {
 
 
 
-  public XMLStatementBuilder(Configuration configuration, MapperBuilderAssistant builderAssistant, XNode context) {
-    this(configuration, builderAssistant, context, null);
-  }
+//  public XMLStatementBuilder(Configuration configuration, MapperBuilderAssistant builderAssistant, XNode context) {
+//    this(configuration, builderAssistant, context, null);
+//  }
 
   /**
    * 构造器
-   *
-   * @param configuration
-   * @param builderAssistant
-   * @param context
-   * @param databaseId
    */
   public XMLStatementBuilder(Configuration configuration, MapperBuilderAssistant builderAssistant, XNode context, String databaseId) {
     super(configuration);

@@ -29,14 +29,11 @@ public class TextSqlNode implements SqlNode {
 
 
   /**
-   * 构造器
-   * @param text
+   * Default constructor
    */
   public TextSqlNode(String text) {
     this.text = text;
   }
-
-
 
   public boolean apply(DynamicContext context) {
     //内部类1
@@ -55,7 +52,7 @@ public class TextSqlNode implements SqlNode {
     return checker.isDynamic();
   }
 
-  
+  //
   private GenericTokenParser createParser(TokenHandler handler) {
     GenericTokenParser tokenParser = new GenericTokenParser("${", "}", handler);
     return tokenParser;
@@ -69,11 +66,11 @@ public class TextSqlNode implements SqlNode {
 
     private DynamicContext context;
 
-
     public BindingTokenParser(DynamicContext context) {
       this.context = context;
     }
 
+    @Override
     public String handleToken(String content) {
       Object parameter = context.getBindings().get("_parameter");
       if (parameter == null) {
@@ -92,13 +89,18 @@ public class TextSqlNode implements SqlNode {
    * 内部类2
    */
   private static class DynamicCheckerTokenParser implements TokenHandler {
-    
+
+    //
     private boolean isDynamic;
 
     public boolean isDynamic() {
       return isDynamic;
     }
 
+    /**
+     * 动态
+     */
+    @Override
     public String handleToken(String content) {
       this.isDynamic = true;
       return null;
